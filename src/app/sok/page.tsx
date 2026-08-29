@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SearchPage() {
   return (
-    <main className="mx-auto max-w-[760px] px-10 pb-16 pt-9">
+    <main className="mx-auto max-w-190 px-10 pb-16 pt-9">
       <Header variant="minimal" />
       <SearchPageClient />
     </main>

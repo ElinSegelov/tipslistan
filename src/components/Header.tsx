@@ -24,7 +24,7 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
           </Link>
           <Link
             href="/sok"
-            className="flex items-center gap-[7px] rounded-full bg-accent py-2.5 pl-[15px] pr-[18px] text-[13.5px] font-bold text-accent-ink"
+            className="flex items-center gap-1.75 rounded-full bg-accent py-2.5 pl-3.75 pr-4.5 text-[13.5px] font-bold text-accent-ink"
           >
             <PlusIcon />
             Lägg till tips
@@ -59,9 +59,9 @@ function UserMenu({
     <div className="flex items-center gap-2.5">
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={image} alt="" className="h-[38px] w-[38px] rounded-full border border-border" />
+        <img src={image} alt="" className="h-9.5 w-9.5 rounded-full border border-border" />
       ) : (
-        <div className="flex h-[38px] w-[38px] items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[13px] font-bold">
+        <div className="flex h-9.5 w-9.5 items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[13px] font-bold">
           {initial}
         </div>
       )}

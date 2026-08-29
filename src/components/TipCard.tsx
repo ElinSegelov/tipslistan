@@ -39,7 +39,7 @@ export function TipCard({
               onToggleCompleted(tip.id, !tip.completed);
             }}
             aria-label={tip.completed ? `Markera som ${cat.pendingLabel.toLowerCase()}` : `Markera som ${cat.doneLabel.toLowerCase()}`}
-            className="absolute top-2.5 right-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border border-white/10 bg-black/55 text-text backdrop-blur-sm"
+            className="absolute top-2.5 right-2.5 flex h-7.5 w-7.5 items-center justify-center rounded-full border border-white/10 bg-black/55 text-text backdrop-blur-sm"
           >
             {tip.completed ? <CheckIcon /> : <BookmarkIcon />}
           </button>
@@ -59,9 +59,9 @@ export function TipCard({
         </Link>
         <div className="mt-1.5 flex items-center gap-1.5 text-xs text-text-muted">
           {tip.year ? <span>{tip.year}</span> : null}
-          {tip.year ? <span className="h-[3px] w-[3px] rounded-full bg-text-muted/60" /> : null}
+          {tip.year ? <span className="h-0.75 w-0.75 rounded-full bg-text-muted/60" /> : null}
           <span
-            className="rounded-full px-[7px] py-[2px] text-[10.5px] font-bold"
+            className="rounded-full px-1.75 py-0.5 text-[10.5px] font-bold"
             style={{ background: `oklch(0.3 0.06 ${cat.hue} / 0.45)`, color: `oklch(0.86 0.1 ${cat.hue})` }}
           >
             {cat.label}

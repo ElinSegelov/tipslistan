@@ -89,11 +89,11 @@ export function DetailView({ tip }: { tip: TipRecord }) {
           </div>
 
           {tip.description ? (
-            <p className="mb-5 max-w-[640px] text-sm leading-relaxed text-text-muted">{tip.description}</p>
+            <p className="mb-5 max-w-160 text-sm leading-relaxed text-text-muted">{tip.description}</p>
           ) : null}
 
           <div className="mb-4 flex items-center gap-2.5">
-            <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[10px] font-bold">
+            <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[10px] font-bold">
               {tip.recommender.charAt(0).toUpperCase()}
             </div>
             <span className="text-[13px] text-text-muted">
@@ -123,5 +123,5 @@ export function DetailView({ tip }: { tip: TipRecord }) {
 }
 
 function Dot() {
-  return <span className="h-[3px] w-[3px] rounded-full bg-text-muted/60" />;
+  return <span className="h-0.75 w-0.75 rounded-full bg-text-muted/60" />;
 }

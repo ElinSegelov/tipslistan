@@ -35,7 +35,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <main className="mx-auto max-w-[1280px] px-10 pb-16 pt-9">
+    <main className="mx-auto max-w-320 px-10 pb-16 pt-9">
       <Header variant="minimal" />
       <div className="mt-9">
         <DetailView tip={row as TipRecord} />

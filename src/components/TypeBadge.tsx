@@ -4,7 +4,7 @@ export function TypeBadge({ type }: { type: ContentType }) {
   const cat = CATEGORIES[type];
   return (
     <span
-      className="rounded-full px-[7px] py-[2px] text-[10.5px] font-bold tracking-wide"
+      className="rounded-full px-1.75 py-0.5 text-[10.5px] font-bold tracking-wide"
       style={{
         background: `oklch(0.3 0.06 ${cat.hue} / 0.45)`,
         color: `oklch(0.86 0.1 ${cat.hue})`,

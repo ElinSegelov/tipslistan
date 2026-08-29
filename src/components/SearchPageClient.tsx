@@ -142,8 +142,8 @@ export function SearchPageClient() {
               onClick={() => setTypeFilter(key)}
               className={
                 active
-                  ? "rounded-full bg-accent px-[15px] py-2 text-[13px] font-bold text-accent-ink"
-                  : "rounded-full border border-border px-[15px] py-2 text-[13px] font-semibold text-text-muted"
+                  ? "rounded-full bg-accent px-3.75 py-2 text-[13px] font-bold text-accent-ink"
+                  : "rounded-full border border-border px-3.75 py-2 text-[13px] font-semibold text-text-muted"
               }
             >
               {label}
@@ -170,7 +170,7 @@ export function SearchPageClient() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Sök på titel …"
-          className="w-full rounded-full border border-border bg-bg-elevated py-4 pl-[50px] pr-[18px] text-[15px] outline-none placeholder:text-text-faint"
+          className="w-full rounded-full border border-border bg-bg-elevated py-4 pl-12.5 pr-4.5 text-[15px] outline-none placeholder:text-text-faint"
         />
       </div>
 
@@ -181,7 +181,7 @@ export function SearchPageClient() {
             key={ex.title}
             type="button"
             onClick={() => selectExample(ex)}
-            className="rounded-full border border-border bg-bg-card px-3.5 py-[7px] text-[12.5px] text-text-muted"
+            className="rounded-full border border-border bg-bg-card px-3.5 py-1.75 text-[12.5px] text-text-muted"
           >
             {ex.title}
           </button>
@@ -214,8 +214,8 @@ export function SearchPageClient() {
 
       {selected ? (
         <div className="mb-5 overflow-hidden rounded-2xl border border-border bg-bg-card">
-          <div className="flex gap-5 p-[22px]">
-            <div className="relative aspect-[2/3] w-[108px] flex-none overflow-hidden rounded-[10px]">
+          <div className="flex gap-5 p-5.5">
+            <div className="relative aspect-[2/3] w-27 flex-none overflow-hidden rounded-[10px]">
               <PosterPlaceholder type={selected.type} fontSize="text-[40px]" />
               {selected.posterUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -239,14 +239,14 @@ export function SearchPageClient() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3.5 border-t border-border p-[22px]">
+          <div className="flex flex-col gap-3.5 border-t border-border p-5.5">
             <div>
               <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">VEM TIPSADE DIG?</div>
               <input
                 value={recommender}
                 onChange={(e) => setRecommender(e.target.value)}
                 placeholder="T.ex. Anna"
-                className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-[11px] text-sm outline-none placeholder:text-text-faint"
+                className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
               />
             </div>
             <div>
@@ -256,7 +256,7 @@ export function SearchPageClient() {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Varför ska du kolla på/läsa/spela den här?"
                 rows={2}
-                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-[11px] text-sm outline-none placeholder:text-text-faint"
+                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
               />
             </div>
 
@@ -267,26 +267,26 @@ export function SearchPageClient() {
                 type="button"
                 onClick={addToLibrary}
                 disabled={!recommender.trim() || saving}
-                className="mt-1 rounded-xl bg-accent py-[13px] text-[14.5px] font-bold text-accent-ink disabled:opacity-50"
+                className="mt-1 rounded-xl bg-accent py-3.25 text-[14.5px] font-bold text-accent-ink disabled:opacity-50"
               >
                 {saving ? "Lägger till …" : "Lägg till i biblioteket"}
               </button>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="flex-1 rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-[13px] text-center text-[14.5px] font-bold text-emerald-300">
+                <div className="flex-1 rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
                   ✓ Tillagd i biblioteket
                 </div>
                 <button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-[13px] text-[13.5px] font-semibold text-text-muted"
+                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
                 >
                   Till biblioteket
                 </button>
                 <button
                   type="button"
                   onClick={reset}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-[13px] text-[13.5px] font-semibold text-text-muted"
+                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
                 >
                   Sök ett till
                 </button>

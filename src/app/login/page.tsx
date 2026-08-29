@@ -10,7 +10,7 @@ export default async function LoginPage({
   const redirectTo = from && from.startsWith("/") ? from : "/";
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-8 py-16">
+    <main className="mx-auto flex min-h-dvh max-w-105 flex-col justify-center px-8 py-16">
       <div className="mb-10 flex flex-col items-center gap-3 text-center">
         <LogoMark size={34} />
         <div className="serif text-[30px] italic">Tipslistan</div>

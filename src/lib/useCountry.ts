@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { DEFAULT_COUNTRY } from "@/lib/countries";
 
-const STORAGE_KEY = "marquee.country";
+const STORAGE_KEY = "tipslistan.country";
 const listeners = new Set<() => void>();
 
 function getSnapshot(): string {
