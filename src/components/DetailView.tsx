@@ -92,16 +92,22 @@ export function DetailView({ tip }: { tip: TipRecord }) {
             <p className="mb-5 max-w-160 text-sm leading-relaxed text-text-muted">{tip.description}</p>
           ) : null}
 
-          <div className="mb-4 flex items-center gap-2.5">
-            <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[10px] font-bold">
-              {tip.recommender.charAt(0).toUpperCase()}
+          {tip.recommender ? (
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-5.5 w-5.5 items-center justify-center rounded-full border border-cyan-800/60 bg-cyan-950/40 text-[10px] font-bold">
+                {tip.recommender.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-[13px] text-text-muted">
+                Tipsat av <strong className="text-text">{tip.recommender}</strong>
+                {" · "}
+                {new Date(tip.createdAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+              </span>
             </div>
-            <span className="text-[13px] text-text-muted">
-              Tipsat av <strong className="text-text">{tip.recommender}</strong>
-              {" · "}
-              {new Date(tip.createdAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
-            </span>
-          </div>
+          ) : (
+            <div className="mb-4 text-[13px] text-text-muted">
+              Tillagd {new Date(tip.createdAt).toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+            </div>
+          )}
 
           {tip.note ? (
             <div className="border-l-2 py-1 pl-4" style={{ borderColor: `oklch(0.72 0.13 ${cat.hue})` }}>

@@ -14,7 +14,7 @@ export function TipCard({
   onToggleCompleted: (id: string, next: boolean) => void;
 }) {
   const cat = CATEGORIES[tip.type];
-  const recInitial = tip.recommender.trim().charAt(0).toUpperCase() || "?";
+  const recInitial = tip.recommender?.trim().charAt(0).toUpperCase() || "?";
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -67,12 +67,14 @@ export function TipCard({
             {cat.label}
           </span>
         </div>
-        <div className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-text-faint">
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-bg-elevated text-[8.5px] font-bold text-text">
-            {recInitial}
-          </span>
-          Tipsat av {tip.recommender}
-        </div>
+        {tip.recommender ? (
+          <div className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-text-faint">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-bg-elevated text-[8.5px] font-bold text-text">
+              {recInitial}
+            </span>
+            Tipsat av {tip.recommender}
+          </div>
+        ) : null}
       </div>
     </div>
   );

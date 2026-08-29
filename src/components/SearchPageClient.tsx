@@ -86,7 +86,7 @@ export function SearchPageClient() {
   }
 
   async function addToLibrary() {
-    if (!selected || !recommender.trim()) return;
+    if (!selected) return;
     setSaving(true);
     setSaveError(null);
     const result = await addTip({
@@ -100,7 +100,7 @@ export function SearchPageClient() {
       rating: selected.rating,
       genre: selected.genre,
       extra: selected.extra,
-      recommender: recommender.trim(),
+      recommender: recommender.trim() || null,
       note: note.trim() || null,
     });
     setSaving(false);
@@ -250,7 +250,7 @@ export function SearchPageClient() {
               />
             </div>
             <div>
-              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">ANTECKNING (VALFRITT)</div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">ANTECKNING</div>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -266,7 +266,7 @@ export function SearchPageClient() {
               <button
                 type="button"
                 onClick={addToLibrary}
-                disabled={!recommender.trim() || saving}
+                disabled={saving}
                 className="mt-1 rounded-xl bg-accent py-3.25 text-[14.5px] font-bold text-accent-ink disabled:opacity-50"
               >
                 {saving ? "Lägger till …" : "Lägg till i biblioteket"}

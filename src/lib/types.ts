@@ -14,7 +14,7 @@ export interface TipRecord {
   rating: string | null;
   genre: string | null;
   extra: string | null;
-  recommender: string;
+  recommender: string | null;
   note: string | null;
   completed: boolean;
   createdAt: Date;

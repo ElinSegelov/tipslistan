@@ -84,7 +84,7 @@ export const tips = pgTable("tips", {
   rating: text("rating"),
   genre: text("genre"),
   extra: text("extra"),
-  recommender: text("recommender").notNull(),
+  recommender: text("recommender"),
   note: text("note"),
   completed: boolean("completed").notNull().default(false),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
