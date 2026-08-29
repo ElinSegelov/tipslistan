@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { CATEGORIES, COUNTRY_AWARE_TYPES } from "@/lib/categories";
 import type { AvailabilityResult, TipRecord } from "@/lib/types";
 import { useCountry } from "@/lib/useCountry";
+import { toggleTipCompleted, updateTipReview } from "@/lib/actions/tips";
 import { PosterPlaceholder, TypeBadge } from "./TypeBadge";
 import { CountrySelector } from "./CountrySelector";
 import { AvailabilityPills } from "./AvailabilityPills";
-import { StarIcon } from "./icons";
+import { BookmarkIcon, CheckIcon, StarIcon } from "./icons";
 
 export function DetailView({ tip }: { tip: TipRecord }) {
   const cat = CATEGORIES[tip.type];
@@ -47,11 +48,55 @@ export function DetailView({ tip }: { tip: TipRecord }) {
     };
   }, [requestKey, tip.type, tip.externalSource, tip.externalId, tip.title, country]);
 
+  // Completed toggle — mirrors TipCard's grid toggle, but as a labeled
+  // button here since there's room for it.
+  const [completed, setCompleted] = useState(tip.completed);
+  const [togglingCompleted, setTogglingCompleted] = useState(false);
+
+  async function handleToggleCompleted() {
+    const next = !completed;
+    setCompleted(next);
+    setTogglingCompleted(true);
+    const result = await toggleTipCompleted(tip.id, next);
+    setTogglingCompleted(false);
+    if ("error" in result) {
+      setCompleted(!next);
+    }
+  }
+
+  // "Vad tyckte du?" — a review written after finishing it, separate from
+  // `note` (the reason it was added in the first place).
+  const [review, setReview] = useState(tip.review);
+  const [editingReview, setEditingReview] = useState(false);
+  const [reviewDraft, setReviewDraft] = useState(tip.review ?? "");
+  const [savingReview, setSavingReview] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+
+  function startEditingReview() {
+    setReviewDraft(review ?? "");
+    setReviewError(null);
+    setEditingReview(true);
+  }
+
+  async function saveReview() {
+    setSavingReview(true);
+    setReviewError(null);
+    const value = reviewDraft.trim() || null;
+    const result = await updateTipReview(tip.id, value);
+    setSavingReview(false);
+    if ("error" in result) {
+      setReviewError(result.error);
+      return;
+    }
+    setReview(value);
+    setEditingReview(false);
+  }
+
   return (
     <>
-      <div className="mb-8 grid grid-cols-1 gap-9 sm:grid-cols-[220px_1fr]">
-        <div className="relative aspect-[2/3] overflow-hidden rounded-2xl border border-border">
-          <PosterPlaceholder type={tip.type} fontSize="text-[88px]" />
+      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-[220px_1fr] sm:gap-9">
+        <div className="relative mx-auto aspect-[2/3] w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
+          <PosterPlaceholder type={tip.type} fontSize="text-[56px] sm:text-[88px]" />
           {tip.posterUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={tip.posterUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -63,7 +108,7 @@ export function DetailView({ tip }: { tip: TipRecord }) {
             <TypeBadge type={tip.type} />
             <span className="text-xs text-text-faint">Källa: {cat.source}</span>
           </div>
-          <h1 className="serif mb-3 text-[46px] italic leading-[1.05]">{tip.title}</h1>
+          <h1 className="serif mb-3 text-[32px] italic leading-[1.05] sm:text-[46px]">{tip.title}</h1>
           <div className="mb-4.5 flex flex-wrap items-center gap-2 text-[13.5px] text-text-muted">
             {tip.year ? <span>{tip.year}</span> : null}
             {tip.genre ? (
@@ -110,10 +155,83 @@ export function DetailView({ tip }: { tip: TipRecord }) {
           )}
 
           {tip.note ? (
-            <div className="border-l-2 py-1 pl-4" style={{ borderColor: `oklch(0.72 0.13 ${cat.hue})` }}>
+            <div className="mb-5 border-l-2 py-1 pl-4" style={{ borderColor: `oklch(0.72 0.13 ${cat.hue})` }}>
               <span className="serif italic text-base text-text/90">&ldquo;{tip.note}&rdquo;</span>
             </div>
           ) : null}
+
+          <div className="mb-5">
+            <button
+              type="button"
+              onClick={handleToggleCompleted}
+              disabled={togglingCompleted}
+              className={
+                completed
+                  ? "flex items-center gap-1.75 rounded-full border border-emerald-800/50 bg-emerald-950/30 px-4 py-2.25 text-[13px] font-bold text-emerald-300 disabled:opacity-60"
+                  : "flex items-center gap-1.75 rounded-full border border-border bg-bg-elevated px-4 py-2.25 text-[13px] font-bold text-text-muted disabled:opacity-60"
+              }
+            >
+              {completed ? <CheckIcon /> : <BookmarkIcon />}
+              {completed ? cat.doneLabel : `Markera som ${cat.doneLabel.toLowerCase()}`}
+            </button>
+          </div>
+
+          <div>
+            <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">VAD TYCKTE DU?</div>
+            {editingReview ? (
+              <div className="flex flex-col gap-2.5">
+                <label htmlFor="review" className="sr-only">
+                  Vad tyckte du?
+                </label>
+                <textarea
+                  id="review"
+                  value={reviewDraft}
+                  onChange={(e) => setReviewDraft(e.target.value)}
+                  rows={3}
+                  autoFocus
+                  placeholder="Skriv vad du tyckte …"
+                  className="w-full max-w-160 resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+                />
+                {reviewError ? <div className="text-sm text-red-300">{reviewError}</div> : null}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={saveReview}
+                    disabled={savingReview}
+                    className="rounded-xl bg-accent px-4 py-2.25 text-[13px] font-bold text-accent-ink disabled:opacity-50"
+                  >
+                    {savingReview ? "Sparar …" : "Spara"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingReview(false)}
+                    className="rounded-xl border border-border px-4 py-2.25 text-[13px] font-semibold text-text-muted"
+                  >
+                    Avbryt
+                  </button>
+                </div>
+              </div>
+            ) : review ? (
+              <div className="flex max-w-160 items-start justify-between gap-3">
+                <p className="text-sm leading-relaxed text-text-muted">{review}</p>
+                <button
+                  type="button"
+                  onClick={startEditingReview}
+                  className="whitespace-nowrap text-xs font-semibold text-text-faint underline underline-offset-2"
+                >
+                  Redigera
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={startEditingReview}
+                className="text-[13px] font-semibold text-accent underline underline-offset-2"
+              >
+                Skriv vad du tyckte
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

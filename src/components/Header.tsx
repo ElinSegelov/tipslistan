@@ -1,44 +1,52 @@
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
-import { LogoMark, PlusIcon, SearchIcon } from "./icons";
+import { LogoMark, PlusIcon } from "./icons";
 
 export async function Header({ variant = "full" }: { variant?: "full" | "minimal" }) {
   const session = await auth();
   const user = session?.user;
 
   return (
-    <div className="flex items-center justify-between">
-      <Link href="/" className="flex items-center gap-3">
-        <LogoMark />
-        <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
-      </Link>
+    <header className="sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-10 py-5">
+        <Link href="/" className="flex items-center gap-3">
+          <LogoMark />
+          <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
+        </Link>
 
-      {variant === "full" ? (
-        <div className="flex items-center gap-3.5">
-          <Link
-            href="/sok"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-bg-elevated text-text/80"
-            aria-label="Sök"
-          >
-            <SearchIcon />
-          </Link>
-          <Link
-            href="/sok"
-            className="flex items-center gap-1.75 rounded-full bg-accent py-2.5 pl-3.75 pr-4.5 text-[13.5px] font-bold text-accent-ink"
-          >
-            <PlusIcon />
-            Lägg till tips
-          </Link>
-          {user ? <UserMenu name={user.name} email={user.email} image={user.image} /> : null}
-        </div>
-      ) : (
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-1.5 text-[13px] font-semibold text-text-muted">
-            <ChevronBack /> Tillbaka till biblioteket
-          </Link>
-          {user ? <UserMenu name={user.name} email={user.email} image={user.image} /> : null}
-        </div>
-      )}
+        {variant === "full" ? (
+          <div className="flex items-center gap-3.5">
+            <Link
+              href="/sok"
+              className="flex items-center gap-1.75 rounded-full bg-accent py-2.5 pl-3.75 pr-4.5 text-[13.5px] font-bold text-accent-ink"
+            >
+              <PlusIcon />
+              Nytt tips
+            </Link>
+            {user ? <UserMenu name={user.name} email={user.email} image={user.image} /> : null}
+          </div>
+        ) : user ? (
+          <UserMenu name={user.name} email={user.email} image={user.image} />
+        ) : null}
+      </div>
+    </header>
+  );
+}
+
+/** Icon-only "back" affordance for the minimal-header pages (/sok,
+    /titel/[id]) — sits in normal document flow just below the sticky
+    header (not inside it), so it scrolls away with the page content
+    instead of the header. */
+export function BackToLibrary() {
+  return (
+    <div className="mx-auto max-w-7xl px-10 pt-6">
+      <Link
+        href="/"
+        aria-label="Tillbaka till biblioteket"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg-elevated text-text-muted"
+      >
+        <ChevronBack />
+      </Link>
     </div>
   );
 }
@@ -56,7 +64,10 @@ function UserMenu({
   const initial = label.charAt(0).toUpperCase();
 
   return (
-    <div className="flex items-center gap-2.5">
+    // Stacked (avatar above "Logga ut") on narrow screens to save the
+    // horizontal space a full row costs in the mobile header; back to a
+    // single row from `sm:` up.
+    <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2.5">
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={image} alt="" className="h-9.5 w-9.5 rounded-full border border-border" />
@@ -81,7 +92,7 @@ function UserMenu({
 
 function ChevronBack() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M15 18l-6-6 6-6" />
     </svg>
   );

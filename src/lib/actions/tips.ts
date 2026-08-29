@@ -57,3 +57,21 @@ export async function toggleTipCompleted(
     return { error: err instanceof Error ? err.message : "Kunde inte uppdatera tipset." };
   }
 }
+
+export async function updateTipReview(
+  id: string,
+  review: string | null
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const userId = await requireUserId();
+    await db
+      .update(tips)
+      .set({ review })
+      .where(and(eq(tips.id, id), eq(tips.userId, userId)));
+    revalidatePath("/");
+    revalidatePath(`/titel/${id}`);
+    return { ok: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Kunde inte spara." };
+  }
+}

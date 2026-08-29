@@ -41,12 +41,19 @@ body {
   min-height: 100dvh;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-a:hover {
-  color: oklch(0.82 0.13 65);
+/* Layered so Tailwind utility classes (e.g. text-accent-ink on the
+   "Nytt tips" button) can still override this default link color —
+   unlayered rules would otherwise win over every utility class
+   regardless of specificity, which made button/label text on colored
+   backgrounds unreadable (especially on hover). */
+@layer base {
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover {
+    color: oklch(0.82 0.13 65);
+  }
 }
 
 ::selection {

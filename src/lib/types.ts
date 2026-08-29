@@ -16,11 +16,12 @@ export interface TipRecord {
   extra: string | null;
   recommender: string | null;
   note: string | null;
+  review: string | null;
   completed: boolean;
   createdAt: Date;
 }
 
-export type NewTip = Omit<TipRecord, "id" | "userId" | "createdAt" | "completed"> & {
+export type NewTip = Omit<TipRecord, "id" | "userId" | "createdAt" | "completed" | "review"> & {
   completed?: boolean;
 };
 

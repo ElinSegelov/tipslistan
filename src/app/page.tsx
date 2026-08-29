@@ -23,18 +23,17 @@ export default async function HomePage() {
     .orderBy(desc(tips.createdAt));
 
   return (
-    <main className="mx-auto max-w-320 px-10 pb-16 pt-9">
+    <>
       <Header />
+      <main className="mx-auto max-w-7xl px-10 pb-16 pt-9">
+        <div className="mb-8 mt-11">
+          <h1 className="serif text-[44px] italic leading-[1.05]">Dina tips</h1>
+          <p className="mt-2 max-w-140 text-[15px] text-text-muted">
+            Alla tips på samma ställe — filmer, serier, böcker, spel och brädspel.</p>
+        </div>
 
-      <div className="mb-8 mt-11">
-        <h1 className="serif text-[44px] italic leading-[1.05]">Dina tips</h1>
-        <p className="mt-2 max-w-140 text-[15px] text-text-muted">
-          Allt vänner har rekommenderat dig — filmer, serier, böcker, spel och brädspel, samlat på ett
-          ställe.
-        </p>
-      </div>
-
-      <LibraryGrid initialTips={rows as TipRecord[]} />
-    </main>
+        <LibraryGrid initialTips={rows as TipRecord[]} />
+      </main>
+    </>
   );
 }

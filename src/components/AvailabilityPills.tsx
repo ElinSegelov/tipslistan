@@ -1,6 +1,6 @@
 import { COUNTRIES } from "@/lib/countries";
 import type { AvailabilityResult } from "@/lib/types";
-import { AlertIcon, PlayIcon } from "./icons";
+import { AlertIcon, ListIcon } from "./icons";
 
 export function AvailabilityPills({
   data,
@@ -54,7 +54,7 @@ export function AvailabilityPills({
                   : { border: "1px solid var(--border)", color: "var(--text-faint)" }
               }
             >
-              {item.primary ? <PlayIcon /> : null}
+              {item.primary ? <ListIcon /> : null}
               {item.name}
               <span className="font-medium opacity-65">· {item.mode}</span>
             </a>
@@ -68,7 +68,7 @@ export function AvailabilityPills({
                   : { border: "1px solid var(--border)", color: "var(--text-faint)" }
               }
             >
-              {item.primary ? <PlayIcon /> : null}
+              {item.primary ? <ListIcon /> : null}
               {item.name}
               <span className="font-medium opacity-65">· {item.mode}</span>
             </div>

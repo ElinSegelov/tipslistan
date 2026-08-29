@@ -86,6 +86,10 @@ export const tips = pgTable("tips", {
   extra: text("extra"),
   recommender: text("recommender"),
   note: text("note"),
+  // What the user thought after finishing it — separate from `note` (their
+  // reason for adding it in the first place), filled in later from the
+  // detail page.
+  review: text("review"),
   completed: boolean("completed").notNull().default(false),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
