@@ -33,6 +33,20 @@ export function SearchPageClient() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Manual entry — for when the API is down or simply doesn't have the
+  // title. Shares the recommender/note fields above with the search flow
+  // since the two forms are mutually exclusive (never shown at once).
+  const [manualOpen, setManualOpen] = useState(false);
+  const [manualType, setManualType] = useState<ContentType>("film");
+  const [manualTitle, setManualTitle] = useState("");
+  const [manualYear, setManualYear] = useState("");
+  const [manualGenre, setManualGenre] = useState("");
+  const [manualRating, setManualRating] = useState("");
+  const [manualDescription, setManualDescription] = useState("");
+  const [manualSaving, setManualSaving] = useState(false);
+  const [manualSaveError, setManualSaveError] = useState<string | null>(null);
+  const [manualAdded, setManualAdded] = useState(false);
+
   // Debounced live search against /api/search, scoped to whichever type is
   // currently selected (each provider only knows how to search its own kind
   // of thing, so we search one type at a time).
@@ -67,6 +81,7 @@ export function SearchPageClient() {
   async function selectResult(result: SearchResult) {
     setAdded(false);
     setSaveError(null);
+    setManualOpen(false);
     setSelected(result);
     // Fill in richer detail (esp. BGG, which doesn't return images/description
     // from /search) before showing the preview.
@@ -122,8 +137,8 @@ export function SearchPageClient() {
   }
 
   // Typing a new query while a title is still selected (whether or not it was
-  // added) should immediately drop back into search mode, instead of forcing
-  // the user to click "Sök ett till" first.
+  // added), or while the manual form is open, should immediately drop back
+  // into search mode, instead of forcing the user to click away first.
   function handleQueryChange(value: string) {
     setQuery(value);
     if (selected) {
@@ -133,6 +148,68 @@ export function SearchPageClient() {
       setAdded(false);
       setSaveError(null);
     }
+    if (manualOpen) {
+      setManualOpen(false);
+      setManualSaveError(null);
+    }
+  }
+
+  // `prefillTitle` lets the empty-results/error states hand over what was
+  // already typed; omit it to start from the current search box, or pass ""
+  // explicitly for a blank form (e.g. "add another").
+  function openManual(prefillTitle?: string) {
+    setSelected(null);
+    setManualType(typeFilter !== "alla" ? typeFilter : searchType);
+    setManualTitle(prefillTitle ?? query.trim());
+    setManualYear("");
+    setManualGenre("");
+    setManualRating("");
+    setManualDescription("");
+    setManualSaveError(null);
+    setManualAdded(false);
+    setRecommender("");
+    setNote("");
+    setManualOpen(true);
+  }
+
+  function closeManual() {
+    setManualOpen(false);
+    setManualSaveError(null);
+  }
+
+  async function addManualToLibrary() {
+    const title = manualTitle.trim();
+    if (!title) {
+      setManualSaveError("Titel krävs.");
+      return;
+    }
+    setManualSaving(true);
+    setManualSaveError(null);
+    const year = manualYear.trim() ? Number(manualYear.trim()) : null;
+    const result = await addTip({
+      type: manualType,
+      title,
+      year: year !== null && !Number.isNaN(year) ? year : null,
+      // "manual" marks tips typed in by hand rather than fetched from a
+      // provider — the availability lookup (src/lib/providers/index.ts)
+      // knows to skip external calls for these instead of erroring on a
+      // made-up id.
+      externalSource: "manual",
+      externalId: crypto.randomUUID(),
+      posterUrl: null,
+      description: manualDescription.trim() || null,
+      rating: manualRating.trim() || null,
+      genre: manualGenre.trim() || null,
+      extra: null,
+      recommender: recommender.trim() || null,
+      note: note.trim() || null,
+    });
+    setManualSaving(false);
+    if ("error" in result) {
+      setManualSaveError(result.error);
+      return;
+    }
+    setManualAdded(true);
   }
 
   return (
@@ -188,7 +265,7 @@ export function SearchPageClient() {
         />
       </div>
 
-      <div className="mb-9 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap gap-2">
         <span className="mr-0.5 self-center text-xs text-text-faint">Prova:</span>
         {EXAMPLES.map((ex) => (
           <button
@@ -202,14 +279,35 @@ export function SearchPageClient() {
         ))}
       </div>
 
-      {hasQuery && loading ? <div className="mb-6 text-center text-sm text-text-faint">Söker …</div> : null}
-      {hasQuery && searchError ? (
-        <div className="mb-6 rounded-xl border border-red-900/40 bg-red-950/20 p-4 text-sm text-red-300">
-          {searchError}
+      {!selected && !manualOpen ? (
+        <div className="mb-8 text-center">
+          <button
+            type="button"
+            onClick={() => openManual()}
+            className="text-[12.5px] font-semibold text-text-faint underline underline-offset-2"
+          >
+            Hittar du inte titeln, eller är tjänsten nere? Lägg till manuellt
+          </button>
         </div>
       ) : null}
 
-      {!selected && hasQuery && results.length > 0 ? (
+      {!manualOpen && hasQuery && loading ? (
+        <div className="mb-6 text-center text-sm text-text-faint">Söker …</div>
+      ) : null}
+      {!manualOpen && hasQuery && searchError ? (
+        <div className="mb-6 rounded-xl border border-red-900/40 bg-red-950/20 p-4 text-sm text-red-300">
+          <p>{searchError}</p>
+          <button
+            type="button"
+            onClick={() => openManual(query.trim())}
+            className="mt-2 text-[13px] font-semibold underline underline-offset-2"
+          >
+            Lägg till &quot;{query.trim()}&quot; manuellt istället
+          </button>
+        </div>
+      ) : null}
+
+      {!selected && !manualOpen && hasQuery && results.length > 0 ? (
         <div className="mb-9 flex flex-col gap-2">
           {results.map((r) => (
             <button
@@ -226,7 +324,146 @@ export function SearchPageClient() {
         </div>
       ) : null}
 
-      {selected ? (
+      {manualOpen ? (
+        <div className="mb-5 overflow-hidden rounded-2xl border border-border bg-bg-card">
+          <div className="flex flex-col gap-3.5 p-5.5">
+            <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-[13px] font-bold uppercase tracking-wide text-text-muted">
+                Lägg till manuellt
+              </div>
+              <button type="button" onClick={closeManual} className="text-xs font-semibold text-text-faint">
+                Avbryt
+              </button>
+            </div>
+
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">TYP</div>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_LIST.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    onClick={() => setManualType(c.key)}
+                    className={
+                      manualType === c.key
+                        ? "rounded-full bg-accent px-3.5 py-1.75 text-[12.5px] font-bold text-accent-ink"
+                        : "rounded-full border border-border px-3.5 py-1.75 text-[12.5px] text-text-muted"
+                    }
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">TITEL</div>
+              <input
+                value={manualTitle}
+                onChange={(e) => setManualTitle(e.target.value)}
+                placeholder="Titel"
+                className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3.5">
+              <div>
+                <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">ÅR</div>
+                <input
+                  value={manualYear}
+                  onChange={(e) => setManualYear(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
+                  inputMode="numeric"
+                  placeholder="T.ex. 2024"
+                  className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+                />
+              </div>
+              <div>
+                <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">BETYG</div>
+                <input
+                  value={manualRating}
+                  onChange={(e) => setManualRating(e.target.value)}
+                  placeholder="T.ex. 4.5"
+                  className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">GENRE</div>
+              <input
+                value={manualGenre}
+                onChange={(e) => setManualGenre(e.target.value)}
+                placeholder="T.ex. Drama, Sci-fi"
+                className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+              />
+            </div>
+
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">BESKRIVNING</div>
+              <textarea
+                value={manualDescription}
+                onChange={(e) => setManualDescription(e.target.value)}
+                placeholder="Valfri kort beskrivning"
+                rows={2}
+                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+              />
+            </div>
+
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">VEM TIPSADE DIG?</div>
+              <input
+                value={recommender}
+                onChange={(e) => setRecommender(e.target.value)}
+                placeholder="T.ex. Anna"
+                className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+              />
+            </div>
+            <div>
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">ANTECKNING</div>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Varför ska du kolla på/läsa/spela den här?"
+                rows={2}
+                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+              />
+            </div>
+
+            {manualSaveError ? <div className="text-sm text-red-300">{manualSaveError}</div> : null}
+
+            {!manualAdded ? (
+              <button
+                type="button"
+                onClick={addManualToLibrary}
+                disabled={manualSaving}
+                className="mt-1 rounded-xl bg-accent py-3.25 text-[14.5px] font-bold text-accent-ink disabled:opacity-50"
+              >
+                {manualSaving ? "Lägger till …" : "Lägg till i biblioteket"}
+              </button>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
+                  ✓ Tillagd i biblioteket
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push("/")}
+                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
+                >
+                  Till biblioteket
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openManual("")}
+                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
+                >
+                  Lägg till en till
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : selected ? (
         <div className="mb-5 overflow-hidden rounded-2xl border border-border bg-bg-card">
           <div className="flex gap-5 p-5.5">
             <div className="relative aspect-[2/3] w-27 flex-none overflow-hidden rounded-[10px]">
@@ -310,7 +547,14 @@ export function SearchPageClient() {
         </div>
       ) : !loading && !searchError && hasQuery && results.length === 0 ? (
         <div className="py-8 text-center text-[13.5px] text-text-faint">
-          Inga träffar. Testa ett annat sökord eller byt typ ovan.
+          <p>Inga träffar. Testa ett annat sökord eller byt typ ovan.</p>
+          <button
+            type="button"
+            onClick={() => openManual(query.trim())}
+            className="mt-3 text-[13px] font-semibold text-accent underline underline-offset-2"
+          >
+            Lägg till &quot;{query.trim()}&quot; manuellt
+          </button>
         </div>
       ) : !hasQuery ? (
         <div className="py-8 text-center text-[13.5px] text-text-faint">

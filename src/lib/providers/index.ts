@@ -62,6 +62,15 @@ export async function getAvailability(
   country: string,
   title: string
 ): Promise<AvailabilityResult> {
+  // Manually added tips (see src/lib/actions/tips.ts) have no real provider
+  // record behind them — `id` is just a random uuid — so there's nothing to
+  // look up. Books are the exception: their retailer links are built from
+  // the title, not the id, so those still work for manual entries too.
+  if (source === "manual") {
+    if (type === "bok") return { items: bookRetailerLinks(title), countryAware: false };
+    return { items: [], countryAware: false };
+  }
+
   switch (type) {
     case "film":
     case "serie":

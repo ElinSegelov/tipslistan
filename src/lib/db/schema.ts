@@ -77,7 +77,7 @@ export const tips = pgTable("tips", {
   type: text("type").notNull(), // 'film' | 'serie' | 'bok' | 'spel' | 'brädspel'
   title: text("title").notNull(),
   year: integer("year"),
-  externalSource: text("externalSource").notNull(), // 'tmdb' | 'google_books' | 'open_library' | 'rawg' | 'bgg'
+  externalSource: text("externalSource").notNull(), // 'tmdb' | 'google_books' | 'open_library' | 'rawg' | 'bgg' | 'manual'
   externalId: text("externalId").notNull(),
   posterUrl: text("posterUrl"),
   description: text("description"),
