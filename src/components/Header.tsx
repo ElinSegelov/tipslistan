@@ -10,7 +10,7 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
     <div className="flex items-center justify-between">
       <Link href="/" className="flex items-center gap-3">
         <LogoMark />
-        <span className="serif italic text-[22px] tracking-wide">Marquee</span>
+        <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
       </Link>
 
       {variant === "full" ? (

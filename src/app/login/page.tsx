@@ -13,7 +13,7 @@ export default async function LoginPage({
     <main className="mx-auto flex min-h-dvh max-w-[420px] flex-col justify-center px-8 py-16">
       <div className="mb-10 flex flex-col items-center gap-3 text-center">
         <LogoMark size={34} />
-        <div className="serif text-[30px] italic">Marquee</div>
+        <div className="serif text-[30px] italic">Tipslistan</div>
         <p className="text-sm text-text-muted">Logga in för att se ditt bibliotek av tips.</p>
       </div>
 
@@ -29,20 +29,6 @@ export default async function LoginPage({
             className="w-full rounded-xl border border-border bg-bg-elevated py-3 text-sm font-semibold text-text"
           >
             Fortsätt med Google
-          </button>
-        </form>
-
-        <form
-          action={async () => {
-            "use server";
-            await signIn("github", { redirectTo });
-          }}
-        >
-          <button
-            type="submit"
-            className="w-full rounded-xl border border-border bg-bg-elevated py-3 text-sm font-semibold text-text"
-          >
-            Fortsätt med GitHub
           </button>
         </form>
 

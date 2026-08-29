@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Marquee",
+  title: "Tipslistan",
   description: "Dina tips på filmer, serier, böcker, spel och brädspel — samlade på ett ställe.",
 };
 

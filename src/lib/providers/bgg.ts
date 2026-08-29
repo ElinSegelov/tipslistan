@@ -65,7 +65,7 @@ async function bggFetch<T>(path: string, params: Record<string, string>): Promis
   // One short retry covers that; search/thing normally return 200 directly.
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetch(url, {
-      headers: { "User-Agent": "marquee-app (personal project, contact via BGG profile)" },
+      headers: { "User-Agent": "tipslistan-app (personal project, contact via BGG profile)" },
       next: { revalidate: 60 * 60 * 6 },
     });
     if (res.status === 202) {

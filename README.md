@@ -1,4 +1,4 @@
-# Marquee
+# Tipslistan
 
 En app för att samla tips du fått på filmer, serier, böcker, spel och brädspel — sök titlar, hämta
 data automatiskt från respektive API, och se var filmer/serier går att streama (per land) eller vilka
@@ -6,7 +6,7 @@ plattformar/butiker spel och brädspel finns hos.
 
 Byggd med Next.js (App Router) + TypeScript + Tailwind CSS. Databas: [Neon](https://neon.tech)
 (serverless Postgres) via [Drizzle ORM](https://orm.drizzle.team). Inloggning: [Auth.js /
-NextAuth v5](https://authjs.dev) med Google, GitHub och magisk länk (via [Resend](https://resend.com)).
+NextAuth v5](https://authjs.dev) med Google och magisk länk (via [Resend](https://resend.com)).
 Varje användare har sitt eget bibliotek — tips är kopplade till det inloggade kontot och syns bara
 för dig.
 
@@ -21,13 +21,11 @@ för dig.
 2. **Skapa ett Neon-projekt** på [neon.tech](https://neon.tech) (gratis nivå räcker gott). Kopiera
    den poolade anslutningssträngen ("Pooled connection") från *Connection Details*.
 
-3. **Skapa OAuth-appar för Google och GitHub** (behövs för inloggning):
-   - **Google**: [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services →
+3. **Skapa en OAuth-app för Google** (behövs för inloggning):
+   - [console.cloud.google.com](https://console.cloud.google.com) → APIs & Services →
      Credentials → *Create credentials* → *OAuth client ID* → Web application. Lägg till
      `http://localhost:3000/api/auth/callback/google` som redirect-URI (och din produktions-URL när
-     du deployar).
-   - **GitHub**: [github.com/settings/developers](https://github.com/settings/developers) → *New
-     OAuth App*. Callback URL: `http://localhost:3000/api/auth/callback/github`.
+     du deployar — Google kräver att redirect-URI:n matchar exakt).
 
 4. **Skaffa en Resend-nyckel** för inloggning via magisk länk på
    [resend.com](https://resend.com) → API Keys (gratis: 3 000 mejl/månad, inget kort krävs). I
@@ -81,7 +79,7 @@ Ditt valda streamingland sparas i webbläsarens `localStorage` (inget konto beh�
 
 ## Inloggning & konton
 
-Appen kräver inloggning — du kan logga in med Google, GitHub eller en magisk länk skickad via mejl
+Appen kräver inloggning — du kan logga in med Google eller en magisk länk skickad via mejl
 (ingen lösenordshantering). Varje konto har sitt eget bibliotek: tips du lägger till är alltid
 kopplade till ditt användar-id, och du kan bara se och redigera dina egna tips. Sessioner och
 kontokopplingar hanteras av Auth.js och lagras i samma Neon-databas som tipsen.
@@ -98,7 +96,7 @@ själv.
 src/
   app/
     page.tsx              Hem — inloggad användares sparade tips, filter på typ
-    login/page.tsx         Inloggning (Google, GitHub, magisk länk)
+    login/page.tsx         Inloggning (Google, magisk länk)
     login/kolla-mejlen/    Bekräftelsesida efter magisk länk
     sok/page.tsx           Sök & lägg till (server-wrapper + SearchPageClient)
     titel/[id]/page.tsx    Detaljvy
