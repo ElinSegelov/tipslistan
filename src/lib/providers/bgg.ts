@@ -61,16 +61,31 @@ async function bggFetch<T>(path: string, params: Record<string, string>): Promis
   const url = new URL(`${API_BASE}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
+  // BGG started requiring a registered application + Bearer token for XML API2
+  // in 2025/2026 — it used to be fully keyless. See README for how to register
+  // and get BGG_API_TOKEN. Without it every request 401s.
+  const headers: Record<string, string> = {
+    "User-Agent": "tipslistan-app (personal project, contact via BGG profile)",
+  };
+  if (process.env.BGG_API_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.BGG_API_TOKEN}`;
+  }
+
   // BGG occasionally answers 202 ("queued, try again shortly") under load.
   // One short retry covers that; search/thing normally return 200 directly.
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetch(url, {
-      headers: { "User-Agent": "tipslistan-app (personal project, contact via BGG profile)" },
+      headers,
       next: { revalidate: 60 * 60 * 6 },
     });
     if (res.status === 202) {
       await new Promise((r) => setTimeout(r, 2000));
       continue;
+    }
+    if (res.status === 401) {
+      throw new Error(
+        "BGG kräver numera ett registrerat API-token för sök på brädspel. Se README för hur du skaffar ett och sätter BGG_API_TOKEN."
+      );
     }
     if (!res.ok) throw new Error(`BGG-anrop misslyckades (${res.status})`);
     const xml = await res.text();

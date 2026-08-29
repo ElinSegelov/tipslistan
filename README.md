@@ -35,9 +35,15 @@ för dig.
    - [TMDB](https://www.themoviedb.org/settings/api) — för film & serie (sök, detaljer,
      streamingtillgänglighet per land).
    - [RAWG](https://rawg.io/apidocs) — för spel (sök, detaljer, plattformar).
-   - Google Books kräver ingen nyckel för att komma igång, men du kan lägga till en om du märker att du
-     når kvotgränsen.
-   - BoardGameGeeks XML API2 kräver ingen nyckel alls.
+   - Google Books kräver ingen nyckel för att komma igång, men den delade nyckellösa kvoten blir
+     lätt rate-limitad (fel 429) — lägg gärna till en egen nyckel via
+     [console.cloud.google.com](https://console.cloud.google.com) om du märker det. Söket faller
+     annars tillbaka på Open Library automatiskt om Google Books-anropet misslyckas.
+   - **BoardGameGeeks XML API2 kräver numera ett registrerat token** (ändrades 2025/2026 — tidigare
+     behövdes ingen autentisering alls): registrera en applikation på
+     [boardgamegeek.com/applications](https://boardgamegeek.com/applications), generera ett token
+     under "Tokens" bredvid din app, och spara det som `BGG_API_TOKEN`. Utan det ger brädspelssök
+     fel 401.
 
 6. **Kopiera miljövariabler**
 
@@ -70,7 +76,7 @@ för dig.
 | Film / Serie | [TMDB](https://www.themoviedb.org/) | Sök, detaljer och streamingleverantörer (byggt på JustWatch-data) — filtreras på valt land i detaljvyn. Om titeln inte finns tillgänglig i det valda landet visas en tydlig markering istället för att sektionen bara är tom. |
 | Bok | [Google Books](https://developers.google.com/books) med fallback till [Open Library](https://openlibrary.org) | Det finns ingen gratis, tillförlitlig "finns i lager"-api för svenska bokhandlar, så "Läs eller köp" länkar istället vidare till en sökning hos Bokus, Adlibris, Storytel och Libris. |
 | Spel | [RAWG](https://rawg.io/apidocs) | Sök, detaljer och vilka plattformar spelet finns till. |
-| Brädspel | [BoardGameGeeks XML API2](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | BGG har **ingen** officiell JSON-api trots att det efterfrågats länge — bara den här XML-apin. Vi anropar den direkt från en egen serverrutt (`src/lib/providers/bgg.ts`) och parsar XML till JSON själva med `fast-xml-parser`, istället för att förlita oss på en tredjeparts hostade proxy. Ger antal spelare, speltid, komplexitet, kategori och länk till BGG-sidan, plus sök-länkar till ett par svenska brädspelsbutiker. |
+| Brädspel | [BoardGameGeeks XML API2](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | BGG har **ingen** officiell JSON-api trots att det efterfrågats länge — bara den här XML-apin. Vi anropar den direkt från en egen serverrutt (`src/lib/providers/bgg.ts`) och parsar XML till JSON själva med `fast-xml-parser`, istället för att förlita oss på en tredjeparts hostade proxy. Ger antal spelare, speltid, komplexitet, kategori och länk till BGG-sidan, plus sök-länkar till ett par svenska brädspelsbutiker. BGG krävde tidigare ingen autentisering alls, men började 2025/2026 kräva ett registrerat API-token (`BGG_API_TOKEN`) — se steg 5 nedan. |
 
 Tillgänglighet (streaming/plattformar/butiker) hämtas live vid varje sidvisning istället för att sparas
 i databasen, eftersom den ändras över tid och (för film/serie) beror på vilket land du väljer.

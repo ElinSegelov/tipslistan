@@ -12,9 +12,17 @@ export async function search(type: ContentType, query: string): Promise<SearchRe
     case "serie":
       return searchTmdb(query, type);
     case "bok": {
-      const google = await searchGoogleBooks(query);
-      if (google.length > 0) return google;
-      return searchOpenLibrary(query); // free fallback, no key required
+      // Fall back to Open Library both when Google Books comes up empty AND
+      // when the call itself fails (e.g. the shared keyless quota gets rate
+      // limited with 429) — a failed request shouldn't fail the whole search
+      // when a free, keyless fallback is right there.
+      try {
+        const google = await searchGoogleBooks(query);
+        if (google.length > 0) return google;
+      } catch (err) {
+        console.error("Google Books-sökning misslyckades, faller tillbaka på Open Library:", err);
+      }
+      return searchOpenLibrary(query);
     }
     case "spel":
       return searchRawg(query);
