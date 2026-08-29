@@ -82,7 +82,7 @@ export function SearchPageClient() {
   function selectExample(ex: { type: ContentType; title: string }) {
     setSearchType(ex.type);
     setTypeFilter("alla");
-    setQuery(ex.title);
+    handleQueryChange(ex.title);
   }
 
   async function addToLibrary() {
@@ -119,6 +119,20 @@ export function SearchPageClient() {
     setNote("");
     setAdded(false);
     setSaveError(null);
+  }
+
+  // Typing a new query while a title is still selected (whether or not it was
+  // added) should immediately drop back into search mode, instead of forcing
+  // the user to click "Sök ett till" first.
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    if (selected) {
+      setSelected(null);
+      setRecommender("");
+      setNote("");
+      setAdded(false);
+      setSaveError(null);
+    }
   }
 
   return (
@@ -168,7 +182,7 @@ export function SearchPageClient() {
         </svg>
         <input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleQueryChange(e.target.value)}
           placeholder="Sök på titel …"
           className="w-full rounded-full border border-border bg-bg-elevated py-4 pl-12.5 pr-4.5 text-[15px] outline-none placeholder:text-text-faint"
         />
