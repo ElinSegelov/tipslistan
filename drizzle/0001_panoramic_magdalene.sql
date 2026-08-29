@@ -1,0 +1,1 @@
+ALTER TABLE "tips" ALTER COLUMN "recommender" DROP NOT NULL;
