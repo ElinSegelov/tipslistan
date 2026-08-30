@@ -112,7 +112,7 @@ src/
       details/route.ts     Fulla detaljer för en träff
       availability/route.ts Streaming/plattformar/butiker, landsmedveten för film & serie
   auth.ts                   Auth.js-konfiguration (providers, adapter, e-postutskick)
-  middleware.ts             Skyddar alla sidor utom /login och /api/auth
+  proxy.ts                  Skyddar alla sidor utom /login, /api/auth och juridiksidorna
   lib/
     categories.ts           Kategorimetadata (färger, etiketter, källa) — inkl. brädspel
     providers/               TMDB, Google Books, Open Library, RAWG, BGG
