@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -17,7 +17,23 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   title: "Tipslistan",
-  description: "Dina tips på filmer, serier, böcker, spel och brädspel — samlade på ett ställe.",
+  description: "Dina tips på filmer, serier, böcker, tv-spel och brädspel — samlade på ett ställe.",
+  // Chrome/Android's install prompt gets its icon from manifest.ts
+  // (src/app/manifest.ts); iOS ignores that file, so its "Add to Home
+  // Screen" icon and standalone behavior come from these apple-* fields
+  // instead — both point at the same list-icon artwork as the favicon.
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Tipslistan",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#11161f",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

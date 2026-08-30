@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signIn } from "@/auth";
 import { LogoMark } from "@/components/icons";
 
@@ -62,6 +63,12 @@ export default async function LoginPage({
           </button>
         </form>
       </div>
+
+      <p className="mt-7 text-center text-[12px] leading-relaxed text-text-faint">
+        Genom att logga in godkänner du våra{" "}
+        <Link href="/anvandarvillkor">användarvillkor</Link> och vår{" "}
+        <Link href="/integritetspolicy">integritetspolicy</Link>.
+      </p>
     </main>
   );
 }

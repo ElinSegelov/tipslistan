@@ -1,4 +1,5 @@
 import { desc, eq } from "drizzle-orm";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { LibraryGrid } from "@/components/LibraryGrid";
 import { auth } from "@/auth";
@@ -25,15 +26,16 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-7xl px-10 pb-16 pt-9">
-        <div className="mb-8 mt-11">
+      <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 md:px-10 md:pt-6">
+        <div className="mb-8">
           <h1 className="serif text-[44px] italic leading-[1.05]">Dina tips</h1>
           <p className="mt-2 max-w-140 text-[15px] text-text-muted">
-            Alla tips på samma ställe — filmer, serier, böcker, spel och brädspel.</p>
+            Alla tips på samma ställe — filmer, serier, böcker, tv-spel och brädspel.</p>
         </div>
 
         <LibraryGrid initialTips={rows as TipRecord[]} />
       </main>
+      <Footer />
     </>
   );
 }

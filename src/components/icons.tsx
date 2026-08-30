@@ -1,10 +1,18 @@
 import type { SVGProps } from "react";
 
-export function LogoMark({ color = "var(--accent)", size = 28 }: { color?: string; size?: number }) {
+/** Same bulleted-list mark as the favicon/app icons (see src/app/favicon.ico,
+    public/icon-*.png) — a rounded dark tile with the amber list glyph, so
+    the wordmark logo and the icon read as the same brand everywhere. */
+export function LogoMark({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 30 30" fill="none">
-      <circle cx="15" cy="15" r="12.5" stroke={color} strokeWidth="1.6" />
-      <path d="M12 10.5L20 15L12 19.5V10.5Z" fill={color} />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--bg-elevated)" />
+      <circle cx="6.6" cy="7.8" r="1.3" fill="var(--accent)" />
+      <path d="M10.8 7.8h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="6.6" cy="12" r="1.3" fill="var(--accent)" />
+      <path d="M10.8 12h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="6.6" cy="16.2" r="1.3" fill="var(--accent)" />
+      <path d="M10.8 16.2h7" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
     </svg>
   );
 }

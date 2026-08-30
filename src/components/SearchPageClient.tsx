@@ -214,11 +214,10 @@ export function SearchPageClient() {
 
   return (
     <>
-      <div className="mb-8 mt-14 text-center">
+      <div className="mb-8 text-center">
         <h1 className="serif text-[40px] italic">Vad har du fått tips om?</h1>
         <p className="mt-2.5 text-[14.5px] text-text-muted">
-          Sök bland filmer, serier, böcker, spel och brädspel — vi hämtar omslag, beskrivning och betyg
-          åt dig.
+          Sök bland filmer, serier, böcker, tv-spel och brädspel — hämta omslag, beskrivning och betyg.
         </p>
       </div>
 

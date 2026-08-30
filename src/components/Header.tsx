@@ -8,7 +8,7 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
 
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-10 py-5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-10">
         <Link href="/" className="flex items-center gap-3">
           <LogoMark />
           <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
@@ -18,10 +18,13 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
           <div className="flex items-center gap-3.5">
             <Link
               href="/sok"
-              className="flex items-center gap-1.75 rounded-full bg-accent py-2.5 pl-3.75 pr-4.5 text-[13.5px] font-bold text-accent-ink"
+              aria-label="Nytt tips"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-ink sm:h-auto sm:w-auto sm:gap-1.75 sm:py-2.5 sm:pl-3.75 sm:pr-4.5"
             >
               <PlusIcon />
-              Nytt tips
+              {/* Icon-only on mobile — there isn't room for the label next
+                  to the avatar/logout stack in the cramped mobile header. */}
+              <span className="hidden text-[13.5px] font-bold sm:inline">Nytt tips</span>
             </Link>
             {user ? <UserMenu name={user.name} email={user.email} image={user.image} /> : null}
           </div>
@@ -39,7 +42,7 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
     instead of the header. */
 export function BackToLibrary() {
   return (
-    <div className="mx-auto max-w-7xl px-10 pt-6">
+    <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-10">
       <Link
         href="/"
         aria-label="Tillbaka till biblioteket"
