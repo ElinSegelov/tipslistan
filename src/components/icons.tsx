@@ -7,12 +7,12 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--bg-elevated)" />
-      <circle cx="6.6" cy="7.8" r="1.3" fill="var(--accent)" />
-      <path d="M10.8 7.8h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
-      <circle cx="6.6" cy="12" r="1.3" fill="var(--accent)" />
-      <path d="M10.8 12h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
-      <circle cx="6.6" cy="16.2" r="1.3" fill="var(--accent)" />
-      <path d="M10.8 16.2h7" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="5.85" cy="7.8" r="1.3" fill="var(--accent)" />
+      <path d="M10.05 7.8h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="5.85" cy="12" r="1.3" fill="var(--accent)" />
+      <path d="M10.05 12h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
+      <circle cx="5.85" cy="16.2" r="1.3" fill="var(--accent)" />
+      <path d="M10.05 16.2h9.4" stroke="var(--accent)" strokeWidth="1.9" strokeLinecap="round" />
     </svg>
   );
 }

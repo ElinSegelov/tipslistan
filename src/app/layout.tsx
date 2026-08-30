@@ -15,13 +15,34 @@ const manrope = Manrope({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+const description =
+  "Dina tips på filmer, serier, böcker, tv-spel och brädspel, samlade på ett ställe.";
+
 export const metadata: Metadata = {
+  // Krävs för att dela-bilden (opengraph-image.png) och Open Graph/Twitter-
+  // taggarna ska bli fullständiga URL:er. Byt till din egen domän här den
+  // dag Tipslistan flyttar dit.
+  metadataBase: new URL("https://tipslistan.vercel.app"),
   title: "Tipslistan",
-  description: "Dina tips på filmer, serier, böcker, tv-spel och brädspel — samlade på ett ställe.",
+  description,
+  openGraph: {
+    title: "Tipslistan",
+    description,
+    siteName: "Tipslistan",
+    locale: "sv_SE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tipslistan",
+    description,
+  },
   // Chrome/Android's install prompt gets its icon from manifest.ts
   // (src/app/manifest.ts); iOS ignores that file, so its "Add to Home
   // Screen" icon and standalone behavior come from these apple-* fields
-  // instead — both point at the same list-icon artwork as the favicon.
+  // instead, both point at the same list-icon artwork as the favicon.
+  // Delningsbilden (opengraph-image.png/twitter-image.png i src/app/)
+  // plockas upp automatiskt av Next.js utan att behövas nämnas här.
   icons: {
     apple: "/apple-touch-icon.png",
   },
