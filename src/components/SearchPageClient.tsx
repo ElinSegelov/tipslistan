@@ -7,8 +7,6 @@ import { CATEGORY_LIST, CATEGORIES, type ContentType } from "@/lib/categories";
 import type { SearchResult } from "@/lib/types";
 import { addTip } from "@/lib/actions/tips";
 
-type TypeFilter = ContentType | "alla";
-
 const EXAMPLES: { type: ContentType; title: string }[] = [
   { type: "film", title: "Dune: Part Two" },
   { type: "serie", title: "The Bear" },
@@ -19,9 +17,8 @@ const EXAMPLES: { type: ContentType; title: string }[] = [
 
 export function SearchPageClient() {
   const router = useRouter();
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("alla");
+  const [typeFilter, setTypeFilter] = useState<ContentType>("film");
   const [query, setQuery] = useState("");
-  const [searchType, setSearchType] = useState<ContentType>("film");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -54,7 +51,7 @@ export function SearchPageClient() {
 
   useEffect(() => {
     if (!hasQuery) return;
-    const typesToSearch = typeFilter === "alla" ? [searchType] : [typeFilter];
+    const typesToSearch = [typeFilter];
     const handle = setTimeout(async () => {
       setLoading(true);
       setSearchError(null);
@@ -76,7 +73,7 @@ export function SearchPageClient() {
       }
     }, 400);
     return () => clearTimeout(handle);
-  }, [query, hasQuery, typeFilter, searchType]);
+  }, [query, hasQuery, typeFilter]);
 
   async function selectResult(result: SearchResult) {
     setAdded(false);
@@ -95,8 +92,7 @@ export function SearchPageClient() {
   }
 
   function selectExample(ex: { type: ContentType; title: string }) {
-    setSearchType(ex.type);
-    setTypeFilter("alla");
+    setTypeFilter(ex.type);
     handleQueryChange(ex.title);
   }
 
@@ -159,7 +155,7 @@ export function SearchPageClient() {
   // explicitly for a blank form (e.g. "add another").
   function openManual(prefillTitle?: string) {
     setSelected(null);
-    setManualType(typeFilter !== "alla" ? typeFilter : searchType);
+    setManualType(typeFilter);
     setManualTitle(prefillTitle ?? query.trim());
     setManualYear("");
     setManualGenre("");
@@ -222,9 +218,9 @@ export function SearchPageClient() {
       </div>
 
       <div className="mb-5 flex flex-wrap justify-center gap-2">
-        {(["alla", ...CATEGORY_LIST.map((c) => c.key)] as TypeFilter[]).map((key) => {
+        {CATEGORY_LIST.map((c) => c.key).map((key) => {
           const active = typeFilter === key;
-          const label = key === "alla" ? "Alla typer" : CATEGORIES[key].label;
+          const label = CATEGORIES[key].label;
           return (
             <button
               key={key}
