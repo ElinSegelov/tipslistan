@@ -260,20 +260,6 @@ export function SearchPageClient() {
         />
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <span className="mr-0.5 self-center text-xs text-text-faint">Prova:</span>
-        {EXAMPLES.map((ex) => (
-          <button
-            key={ex.title}
-            type="button"
-            onClick={() => selectExample(ex)}
-            className="rounded-full border border-border bg-bg-card px-3.5 py-1.75 text-[12.5px] text-text-muted"
-          >
-            {ex.title}
-          </button>
-        ))}
-      </div>
-
       {!selected && !manualOpen ? (
         <div className="mb-8 text-center">
           <button
