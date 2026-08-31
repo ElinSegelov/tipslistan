@@ -3,7 +3,7 @@ import type { SVGProps } from "react";
 /** Same bulleted-list mark as the favicon/app icons (see src/app/favicon.ico,
     public/icon-*.png) — a rounded dark tile with the amber list glyph, so
     the wordmark logo and the icon read as the same brand everywhere. */
-export function LogoMark({ size = 28 }: { size?: number }) {
+export function LogoMark({ size = 38 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <rect x="1" y="1" width="22" height="22" rx="6.5" fill="var(--bg-elevated)" />

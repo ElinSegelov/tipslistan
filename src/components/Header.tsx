@@ -11,7 +11,7 @@ export async function Header({ variant = "full" }: { variant?: "full" | "minimal
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-10">
         <Link href="/" className="flex items-center gap-3">
           <LogoMark />
-          <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
+          <span className="serif italic text-3xl tracking-wide">Tipslistan</span>
         </Link>
 
         {variant === "full" ? (
