@@ -29,7 +29,7 @@ export async function Header({
             <Link
               href="/"
               aria-label="Tillbaka till biblioteket"
-              className="inline-flex h-9.5 w-9.5 flex-none items-center justify-center rounded-full border border-border bg-bg-elevated text-text-muted"
+              className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-full border border-border bg-bg-elevated text-text-muted"
             >
               <ChevronBack />
             </Link>
@@ -46,7 +46,7 @@ export async function Header({
             <Link
               href="/sok"
               aria-label="Nytt tips"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-ink sm:h-auto sm:w-auto sm:gap-1.75 sm:py-2.5 sm:pl-3.75 sm:pr-4.5"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-accent text-accent-ink sm:h-auto sm:w-auto sm:gap-1.75 sm:py-2.5 sm:pl-3.75 sm:pr-4.5"
             >
               <PlusIcon />
               {/* Icon-only on mobile — there isn't room for the label next

@@ -47,7 +47,7 @@ export function UserMenu({
         aria-label="Kontomeny"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="block h-9.5 w-9.5 flex-none overflow-hidden rounded-full border border-border"
+        className="block h-11 w-11 flex-none overflow-hidden rounded-full border border-border"
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
