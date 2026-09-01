@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/Footer";
-import { BackToLibrary, Header } from "@/components/Header";
+import { Header } from "@/components/Header";
 import { DetailView } from "@/components/DetailView";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
@@ -37,9 +37,8 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
 
   return (
     <>
-      <Header variant="minimal" />
-      <BackToLibrary />
-      <main className="mx-auto max-w-7xl px-4 pb-16 pt-9 sm:px-10">
+      <Header variant="minimal" back />
+      <main className="flex-1 mx-auto max-w-7xl px-4 pb-16 pt-9 sm:px-10">
         <DetailView tip={row as TipRecord} />
       </main>
       <Footer />

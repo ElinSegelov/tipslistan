@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PosterPlaceholder, TypeBadge } from "@/components/TypeBadge";
-import { CATEGORY_LIST, CATEGORIES, type ContentType } from "@/lib/categories";
+import { CATEGORY_LIST, CATEGORIES, genreOrAuthorLabel, type ContentType } from "@/lib/categories";
+import { normalizeRating } from "@/lib/rating";
 import type { SearchResult } from "@/lib/types";
 import { addTip } from "@/lib/actions/tips";
+import { CheckIcon } from "@/components/icons";
 
-const EXAMPLES: { type: ContentType; title: string }[] = [
-  { type: "film", title: "Dune: Part Two" },
-  { type: "serie", title: "The Bear" },
-  { type: "bok", title: "Tomorrow, and Tomorrow, and Tomorrow" },
-  { type: "spel", title: "Baldur's Gate 3" },
-  { type: "brädspel", title: "Wingspan" },
-];
 
 export function SearchPageClient() {
   const router = useRouter();
@@ -43,6 +38,32 @@ export function SearchPageClient() {
   const [manualSaving, setManualSaving] = useState(false);
   const [manualSaveError, setManualSaveError] = useState<string | null>(null);
   const [manualAdded, setManualAdded] = useState(false);
+
+  // "Added to library" confirmation dialog — shared by both the search and
+  // manual-add flows, so there's always an immediate "go to library" /
+  // "add another" action right where the user's attention already is,
+  // instead of asking them to scroll all the way up to the header's back
+  // button. Dismissing it (backdrop click, Escape, or the button below)
+  // just hides the dialog; the quieter inline confirmation stays put.
+  const addedDialogRef = useRef<HTMLDialogElement>(null);
+  const [dialogDismissed, setDialogDismissed] = useState(false);
+  const showAddedDialog = (added || manualAdded) && !dialogDismissed;
+  const addedTitle = manualAdded ? manualTitle.trim() : selected?.title ?? "";
+
+  useEffect(() => {
+    const dialog = addedDialogRef.current;
+    if (!dialog) return;
+    if (showAddedDialog && !dialog.open) dialog.showModal();
+    else if (!showAddedDialog && dialog.open) dialog.close();
+  }, [showAddedDialog]);
+
+  function addAnother() {
+    if (manualAdded) {
+      openManual("");
+    } else {
+      reset();
+    }
+  }
 
   // Debounced live search against /api/search, scoped to whichever type is
   // currently selected (each provider only knows how to search its own kind
@@ -85,21 +106,32 @@ export function SearchPageClient() {
     try {
       const res = await fetch(`/api/details?type=${result.type}&source=${result.source}&id=${result.id}`);
       const data = await res.json();
-      if (res.ok) setSelected(data.result as SearchResult);
+      if (res.ok) {
+        // Some providers' detail endpoints can't refetch everything the
+        // search endpoint already had (e.g. Open Library's per-work lookup
+        // has no author or rating data) — fall back to the search result
+        // for any field the detail fetch came back empty on, so we never
+        // regress data we already had.
+        const detail = data.result as SearchResult;
+        setSelected({
+          ...detail,
+          year: detail.year ?? result.year,
+          genre: detail.genre ?? result.genre,
+          extra: detail.extra ?? result.extra,
+          rating: detail.rating ?? result.rating,
+          posterUrl: detail.posterUrl ?? result.posterUrl,
+        });
+      }
     } catch {
       // Keep the lighter search-result data if the detail fetch fails.
     }
-  }
-
-  function selectExample(ex: { type: ContentType; title: string }) {
-    setTypeFilter(ex.type);
-    handleQueryChange(ex.title);
   }
 
   async function addToLibrary() {
     if (!selected) return;
     setSaving(true);
     setSaveError(null);
+    setDialogDismissed(false);
     const result = await addTip({
       type: selected.type,
       title: selected.title,
@@ -130,6 +162,7 @@ export function SearchPageClient() {
     setNote("");
     setAdded(false);
     setSaveError(null);
+    setDialogDismissed(false);
   }
 
   // Typing a new query while a title is still selected (whether or not it was
@@ -166,6 +199,7 @@ export function SearchPageClient() {
     setRecommender("");
     setNote("");
     setManualOpen(true);
+    setDialogDismissed(false);
   }
 
   function closeManual() {
@@ -181,6 +215,7 @@ export function SearchPageClient() {
     }
     setManualSaving(true);
     setManualSaveError(null);
+    setDialogDismissed(false);
     const year = manualYear.trim() ? Number(manualYear.trim()) : null;
     const result = await addTip({
       type: manualType,
@@ -213,7 +248,7 @@ export function SearchPageClient() {
       <div className="mb-8 text-center">
         <h1 className="serif text-[40px] italic">Vad har du fått tips om?</h1>
         <p className="mt-2.5 text-[14.5px] text-text-muted">
-          Sök bland filmer, serier, böcker, tv-spel och brädspel — hämta omslag, beskrivning och betyg.
+          Sök bland filmer, serier, böcker, videospel och brädspel — hämta omslag, beskrivning och betyg.
         </p>
       </div>
 
@@ -237,6 +272,12 @@ export function SearchPageClient() {
           );
         })}
       </div>
+
+      {typeFilter === "brädspel" && !manualOpen ? (
+        <div className="mb-5 rounded-xl border border-border bg-bg-card px-4 py-3 text-center text-[12.5px] text-text-muted">
+          Sök för brädspel är på gång — lägg till manuellt så länge.
+        </div>
+      ) : null}
 
       <div className="relative mb-5">
         <svg
@@ -359,22 +400,31 @@ export function SearchPageClient() {
                 />
               </div>
               <div>
-                <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">BETYG</div>
+                <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">
+                  BETYG <span className="font-normal normal-case text-text-faint">(av 10)</span>
+                </div>
                 <input
                   value={manualRating}
                   onChange={(e) => setManualRating(e.target.value)}
-                  placeholder="T.ex. 4.5"
+                  placeholder="T.ex. 8.5"
                   className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
                 />
               </div>
             </div>
 
             <div>
-              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">GENRE</div>
+              {/* Reuses the same `genre` column/state the API-sourced
+                  providers already (ab)use to hold a book's author (see
+                  src/lib/providers/googleBooks.ts and openLibrary.ts) —
+                  just relabelled here so a manually-added book saves and
+                  later displays the same way an API-fetched one does. */}
+              <div className="mb-1.5 text-xs font-bold tracking-wide text-text-muted">
+                {manualType === "bok" ? "FÖRFATTARE" : "GENRE"}
+              </div>
               <input
                 value={manualGenre}
                 onChange={(e) => setManualGenre(e.target.value)}
-                placeholder="T.ex. Drama, Sci-fi"
+                placeholder={manualType === "bok" ? "T.ex. Astrid Lindgren" : "T.ex. Drama, Sci-fi"}
                 className="w-full rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
               />
             </div>
@@ -406,7 +456,7 @@ export function SearchPageClient() {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Varför ska du kolla på/läsa/spela den här?"
                 rows={2}
-                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:tracking-wide placeholder:text-text-faint"
               />
             </div>
 
@@ -422,24 +472,11 @@ export function SearchPageClient() {
                 {manualSaving ? "Lägger till …" : "Lägg till i biblioteket"}
               </button>
             ) : (
-              <div className="flex items-center gap-3">
-                <div className="flex-1 rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
-                  ✓ Tillagd i biblioteket
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push("/")}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
-                >
-                  Till biblioteket
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openManual("")}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
-                >
-                  Lägg till en till
-                </button>
+              // The dialog below (shown right after a successful add) covers
+              // "go to library" / "add another" now — this just confirms it
+              // worked, in case the dialog was dismissed.
+              <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
+                ✓ Tillagd i biblioteket
               </div>
             )}
           </div>
@@ -447,8 +484,8 @@ export function SearchPageClient() {
       ) : selected ? (
         <div className="mb-5 overflow-hidden rounded-2xl border border-border bg-bg-card">
           <div className="flex gap-5 p-5.5">
-            <div className="relative aspect-[2/3] w-27 flex-none overflow-hidden rounded-[10px]">
-              <PosterPlaceholder type={selected.type} fontSize="text-[40px]" />
+            <div className="relative aspect-2/3 w-27 flex-none overflow-hidden rounded-[10px]">
+              <PosterPlaceholder type={selected.type} />
               {selected.posterUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={selected.posterUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -461,7 +498,11 @@ export function SearchPageClient() {
               </div>
               <div className="mb-1 text-[19px] font-bold">{selected.title}</div>
               <div className="mb-2.5 text-[12.5px] text-text-muted">
-                {[selected.year, selected.genre ?? selected.extra, selected.rating ? `★ ${selected.rating}` : null]
+                {[
+                  selected.year,
+                  genreOrAuthorLabel(selected.type, selected.genre) ?? selected.extra,
+                  selected.rating ? `★ ${normalizeRating(selected.rating, selected.source)}/10` : null,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </div>
@@ -488,7 +529,7 @@ export function SearchPageClient() {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Varför ska du kolla på/läsa/spela den här?"
                 rows={2}
-                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:text-text-faint"
+                className="w-full resize-none rounded-[10px] border border-border bg-bg px-3.5 py-2.75 text-sm outline-none placeholder:tracking-wide placeholder:text-text-faint"
               />
             </div>
 
@@ -504,24 +545,8 @@ export function SearchPageClient() {
                 {saving ? "Lägger till …" : "Lägg till i biblioteket"}
               </button>
             ) : (
-              <div className="flex items-center gap-3">
-                <div className="flex-1 rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
-                  ✓ Tillagd i biblioteket
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push("/")}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
-                >
-                  Till biblioteket
-                </button>
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="whitespace-nowrap rounded-xl border border-border px-4 py-3.25 text-[13.5px] font-semibold text-text-muted"
-                >
-                  Sök ett till
-                </button>
+              <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">
+                ✓ Tillagd i biblioteket
               </div>
             )}
           </div>
@@ -537,11 +562,40 @@ export function SearchPageClient() {
             Lägg till &quot;{query.trim()}&quot; manuellt
           </button>
         </div>
-      ) : !hasQuery ? (
-        <div className="py-8 text-center text-[13.5px] text-text-faint">
-          Skriv en titel eller välj ett exempel ovan för att se en förhandsvisning.
-        </div>
       ) : null}
+
+      <dialog
+        ref={addedDialogRef}
+        onClose={() => setDialogDismissed(true)}
+        onClick={(e) => {
+          if (e.target === addedDialogRef.current) setDialogDismissed(true);
+        }}
+        className="m-auto w-[min(380px,calc(100vw-2rem))] rounded-2xl border border-border bg-bg-card p-6 text-text backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+      >
+        <div className="mb-1.5 flex items-center gap-2 text-emerald-300">
+          <CheckIcon />
+          <h2 className="text-[15px] font-bold">Tillagt i biblioteket</h2>
+        </div>
+        <p className="mb-5 text-sm leading-relaxed text-text-muted">
+          {addedTitle ? `"${addedTitle}" finns nu i ditt bibliotek.` : "Tipset finns nu i ditt bibliotek."}
+        </p>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="rounded-xl bg-accent py-3 text-[14px] font-bold text-accent-ink"
+          >
+            Till biblioteket
+          </button>
+          <button
+            type="button"
+            onClick={addAnother}
+            className="rounded-xl border border-border py-3 text-[14px] font-semibold text-text-muted"
+          >
+            Lägg till en till
+          </button>
+        </div>
+      </dialog>
     </>
   );
 }

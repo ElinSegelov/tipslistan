@@ -41,6 +41,17 @@ export async function addTip(input: NewTip): Promise<{ id: string } | { error: s
   }
 }
 
+export async function deleteTip(id: string): Promise<{ ok: true } | { error: string }> {
+  try {
+    const userId = await requireUserId();
+    await db.delete(tips).where(and(eq(tips.id, id), eq(tips.userId, userId)));
+    revalidatePath("/");
+    return { ok: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Kunde inte ta bort tipset." };
+  }
+}
+
 export async function toggleTipCompleted(
   id: string,
   completed: boolean
@@ -68,6 +79,45 @@ export async function updateTipReview(
       .update(tips)
       .set({ review })
       .where(and(eq(tips.id, id), eq(tips.userId, userId)));
+    revalidatePath("/");
+    revalidatePath(`/titel/${id}`);
+    return { ok: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Kunde inte spara." };
+  }
+}
+
+/** Edits the content fields of a manually-added tip (title, year,
+    genre/author, rating, description, recommender, note). Restricted to
+    `externalSource: "manual"` rows — API-sourced tips are re-fetched from
+    their provider instead of hand-edited, so this can never touch one even
+    if called with a mismatched id. */
+export async function updateManualTip(
+  id: string,
+  input: {
+    title: string;
+    year: number | null;
+    genre: string | null;
+    rating: string | null;
+    description: string | null;
+    recommender: string | null;
+    note: string | null;
+  }
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const userId = await requireUserId();
+    await db
+      .update(tips)
+      .set({
+        title: input.title,
+        year: input.year,
+        genre: input.genre,
+        rating: input.rating,
+        description: input.description,
+        recommender: input.recommender,
+        note: input.note,
+      })
+      .where(and(eq(tips.id, id), eq(tips.userId, userId), eq(tips.externalSource, "manual")));
     revalidatePath("/");
     revalidatePath(`/titel/${id}`);
     return { ok: true };

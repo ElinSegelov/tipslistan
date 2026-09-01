@@ -9,7 +9,7 @@ export const metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <main className="mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
+      <main className="flex-1 mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
         <Link href="/" className="mb-10 flex items-center gap-3">
           <LogoMark />
           <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
               inblandade i att driva tjänsten:</p>
             <ul className="mt-2 flex list-disc flex-col gap-2 pl-5">
               <li><strong className="text-text">Google</strong>, om du väljer att logga in med Google.</li>
-              <li><strong className="text-text">Resend</strong>, skickar inloggningslänken om du loggar in via mejl.</li>
+              <li><strong className="text-text">Resend</strong>, skickar inloggningslänken om du loggar in via mail.</li>
               <li><strong className="text-text">Neon</strong>, databashosting. All data i tjänsten (konton, sessioner, tips) lagras hos dem.</li>
               <li><strong className="text-text">Vercel</strong>, driftar själva webbappen.</li>
               <li>
@@ -83,7 +83,7 @@ export default function PrivacyPolicyPage() {
 
           <Section title="Hur länge vi sparar uppgifterna">
             <p>
-              Så länge ditt konto finns kvar. Vill du att kontot och alla dina tips ska raderas, mejla{" "}
+              Så länge ditt konto finns kvar. Vill du att kontot och alla dina tips ska raderas, maila{" "}
               <a href="mailto:tipslistan-support@googlegroups.com">tipslistan-support@googlegroups.com</a>{" "}
               så tar vi bort allt kopplat till dig.
             </p>

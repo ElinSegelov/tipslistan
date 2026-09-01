@@ -50,13 +50,6 @@ export function CheckIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function BookmarkIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg width="14" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M6 4h12v17l-6-4-6 4V4z" />
-    </svg>
-  );
-}
 
 export function ChevronLeftIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -93,6 +86,25 @@ export function AlertIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M12 9v4M12 17h.01M10.3 3.9L2.5 18a1.5 1.5 0 001.3 2.2h16.4a1.5 1.5 0 001.3-2.2L13.7 3.9a1.5 1.5 0 00-2.6 0z" />
+    </svg>
+  );
+}
+
+export function TrashIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 7h16M9 7V4.5a1 1 0 011-1h4a1 1 0 011 1V7m2 0v13a1 1 0 01-1 1H8a1 1 0 01-1-1V7h10zM10 11v6M14 11v6" />
+    </svg>
+  );
+}
+
+export function ShareIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4" />
     </svg>
   );
 }

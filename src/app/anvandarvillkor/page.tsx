@@ -9,7 +9,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <>
-      <main className="mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
+      <main className="flex-1 mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
         <Link href="/" className="mb-10 flex items-center gap-3">
           <LogoMark />
           <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>
@@ -27,7 +27,7 @@ export default function TermsPage() {
 
           <Section title="Om tjänsten">
             <p>
-              Tipslistan låter dig spara tips du fått på filmer, serier, böcker, spel och brädspel,
+              Tipslistan låter dig spara tips du fått på filmer, serier, böcker, videospel och brädspel,
               och hämtar automatiskt omslag, beskrivning och betyg från tredjepartskällor (TMDB,
               Google Books, Open Library, RAWG och BoardGameGeek). Tjänsten är gratis att använda.
             </p>
@@ -35,7 +35,7 @@ export default function TermsPage() {
 
           <Section title="Ditt konto">
             <p>
-              Du loggar in med Google eller en magisk länk skickad till din mejladress. Du ansvarar
+              Du loggar in med Google eller en magisk länk skickad till din mailadress. Du ansvarar
               för att hålla din inloggning säker. Varje konto har sitt eget bibliotek. Du kan bara
               se och redigera dina egna tips.
             </p>

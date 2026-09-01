@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
+import { normalizeRating } from "@/lib/rating";
 import type { TipRecord } from "@/lib/types";
 import { PosterPlaceholder } from "./TypeBadge";
-import { BookmarkIcon, CheckIcon, StarIcon } from "./icons";
+import { CheckIcon, StarIcon } from "./icons";
 
 export function TipCard({
   tip,
@@ -20,7 +21,7 @@ export function TipCard({
     <div className="flex flex-col gap-2.5">
       <Link href={`/titel/${tip.id}`} className="group block">
         <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-border">
-          <PosterPlaceholder type={tip.type} fontSize="text-[64px]" />
+          <PosterPlaceholder type={tip.type} />
           {tip.posterUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -31,23 +32,29 @@ export function TipCard({
             />
           ) : null}
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onToggleCompleted(tip.id, !tip.completed);
-            }}
-            aria-label={tip.completed ? `Markera som ${cat.pendingLabel.toLowerCase()}` : `Markera som ${cat.doneLabel.toLowerCase()}`}
-            className="absolute top-2.5 right-2.5 flex h-7.5 w-7.5 items-center justify-center rounded-full border border-white/10 bg-black/55 text-text backdrop-blur-sm"
-          >
-            {tip.completed ? <CheckIcon /> : <BookmarkIcon />}
-          </button>
+          {/* No badge at all until a tip is marked done — posters for
+              anything still pending stay completely clean. Once done, a
+              green check appears and doubles as the way to un-mark it. */}
+          {tip.completed ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleCompleted(tip.id, false);
+              }}
+              aria-label={`Markera som ${cat.pendingLabel.toLowerCase()}`}
+              className="absolute top-2.5 right-2.5 flex h-7.5 w-7.5 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-950/70 text-emerald-300 backdrop-blur-sm"
+            >
+              <CheckIcon />
+            </button>
+          ) : null}
 
           {tip.rating ? (
             <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1 backdrop-blur-sm">
               <StarIcon />
-              <span className="text-[11.5px] font-bold">{tip.rating}</span>
+              <span className="text-[11.5px] font-bold">{normalizeRating(tip.rating, tip.externalSource)}</span>
+              <span className="text-[9.5px] text-white/50">/10</span>
             </div>
           ) : null}
         </div>

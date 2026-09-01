@@ -35,39 +35,33 @@ export default async function LoginPage({
           </button>
         </form>
 
-        {/*
-          E-postinloggning (magisk länk via Resend) är avstängd tills en
-          verifierad avsändardomän är konfigurerad i Resend, se src/auth.ts.
-          Klistra tillbaka det här blocket när den är klar.
+        <div className="my-2 flex items-center gap-3 text-xs text-text-faint">
+          <div className="h-px flex-1 bg-border" />
+          eller
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
-          <div className="my-2 flex items-center gap-3 text-xs text-text-faint">
-            <div className="h-px flex-1 bg-border" />
-            eller
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <form
-            action={async (formData: FormData) => {
-              "use server";
-              await signIn("resend", formData, { redirectTo });
-            }}
-            className="flex flex-col gap-2.5"
+        <form
+          action={async (formData: FormData) => {
+            "use server";
+            await signIn("resend", formData, { redirectTo });
+          }}
+          className="flex flex-col gap-2.5"
+        >
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="din@mail.se"
+            className="w-full rounded-xl border border-border bg-bg-elevated px-4 py-3 text-sm outline-none placeholder:text-text-faint"
+          />
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-accent py-3 text-sm font-bold text-accent-ink"
           >
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="din@mejl.se"
-              className="w-full rounded-xl border border-border bg-bg-elevated px-4 py-3 text-sm outline-none placeholder:text-text-faint"
-            />
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-accent py-3 text-sm font-bold text-accent-ink"
-            >
-              Skicka inloggningslänk
-            </button>
-          </form>
-        */}
+            Skicka inloggningslänk
+          </button>
+        </form>
       </div>
 
       <p className="mt-7 text-center text-[12px] leading-relaxed text-text-faint">

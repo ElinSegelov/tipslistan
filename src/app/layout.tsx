@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 const description =
-  "Dina tips på filmer, serier, böcker, tv-spel och brädspel, samlade på ett ställe.";
+  "Dina tips på filmer, serier, böcker, videospel och brädspel, samlade på ett ställe.";
 
 export const metadata: Metadata = {
   // Krävs för att dela-bilden (opengraph-image.png) och Open Graph/Twitter-
@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="sv" className={`${instrumentSerif.variable} ${manrope.variable} h-full`}>
       <body className="min-h-full antialiased">
         <div className="cinematic-backdrop" />
-        <div className="relative z-[1] min-h-dvh">{children}</div>
+        <div className="relative z-1 flex min-h-dvh flex-col">{children}</div>
       </body>
     </html>
   );

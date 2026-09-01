@@ -9,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Tipslistan",
     short_name: "Tipslistan",
-    description: "Dina tips på filmer, serier, böcker, tv-spel och brädspel — samlade på ett ställe.",
+    description: "Dina tips på filmer, serier, böcker, videospel och brädspel — samlade på ett ställe.",
     start_url: "/",
     display: "standalone",
     background_color: "#11161f",
