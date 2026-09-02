@@ -47,7 +47,7 @@ export function AvailabilityPills({
     // relative to the viewport, not this element's own column, so on an
     // indented container it can end up *wider* than the available space
     // instead of capping it.
-    <div className="flex max-w-full flex-col gap-3 overflow-hidden">
+    <div className="flex max-w-full flex-col gap-3 overflow-clip">
       <div className="flex flex-wrap gap-2.5">
         {data.items.map((item, i) =>
           item.url ? (

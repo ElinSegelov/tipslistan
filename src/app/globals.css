@@ -42,7 +42,7 @@
    page-wide horizontal scrollbar, instead of chasing every individual
    overflow source. */
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -50,7 +50,7 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   min-height: 100dvh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Layered so Tailwind utility classes (e.g. text-accent-ink on the
@@ -70,6 +70,21 @@ body {
 
 ::selection {
   background: oklch(0.75 0.15 65 / 0.35);
+}
+
+/* iOS Safari auto-zooms the whole page when you focus a text field whose
+   font-size is under 16px — every input/textarea in the app was set to
+   14-15px (text-sm / text-[15px]), so tapping essentially any field
+   zoomed the page in, which is what was actually behind the "sometimes
+   there's x-axis scroll" reports (the zoomed layout no longer fits the
+   visual viewport, and the pan/scroll capability that creates doesn't
+   reliably reset when the field loses focus). Unlayered like the `a`
+   rule above, so it wins over the text-sm/text-[15px] utility classes on
+   these elements regardless of specificity — see that rule's comment. */
+input,
+textarea,
+select {
+  font-size: 16px;
 }
 
 .serif {

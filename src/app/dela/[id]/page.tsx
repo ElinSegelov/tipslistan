@@ -1,10 +1,12 @@
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { Footer } from "@/components/Footer";
 import { LogoMark } from "@/components/icons";
 import { PosterPlaceholder, TypeBadge } from "@/components/TypeBadge";
+import { addSharedTip } from "@/lib/actions/tips";
 import { CATEGORIES, genreOrAuthorLabel } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { tips } from "@/lib/db/schema";
@@ -55,12 +57,30 @@ export async function generateMetadata({
   };
 }
 
-export default async function SharedTipPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SharedTipPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { id } = await params;
+  const { error } = await searchParams;
   const tip = await getTip(id);
   if (!tip) notFound();
 
   const cat = CATEGORIES[tip.type];
+  const session = await auth();
+  const isLoggedIn = !!session?.user?.id;
+
+  async function addToLibrary() {
+    "use server";
+    const result = await addSharedTip(id);
+    if ("error" in result) {
+      redirect(`/dela/${id}?error=1`);
+    }
+    redirect(`/titel/${result.id}`);
+  }
 
   return (
     <>
@@ -104,12 +124,26 @@ export default async function SharedTipPage({ params }: { params: Promise<{ id: 
               <p className="mb-6 max-w-140 text-sm leading-relaxed text-text-muted">{tip.description}</p>
             ) : null}
 
-            <Link
-              href="/"
-              className="inline-flex w-fit items-center gap-1.75 rounded-full bg-accent px-4 py-2.5 text-[13.5px] font-bold text-accent-ink"
-            >
-              Öppna Tipslistan
-            </Link>
+            {isLoggedIn ? (
+              <form action={addToLibrary}>
+                <button
+                  type="submit"
+                  className="inline-flex w-fit items-center gap-1.75 rounded-full bg-accent px-4 py-2.5 text-[13.5px] font-bold text-accent-ink"
+                >
+                  Lägg till i mitt bibliotek
+                </button>
+              </form>
+            ) : (
+              <Link
+                href={`/login?from=/dela/${id}`}
+                className="inline-flex w-fit items-center gap-1.75 rounded-full bg-accent px-4 py-2.5 text-[13.5px] font-bold text-accent-ink"
+              >
+                Logga in för att lägga till
+              </Link>
+            )}
+            {error ? (
+              <p className="mt-2.5 text-[12.5px] text-red-300">Kunde inte lägga till tipset. Försök igen.</p>
+            ) : null}
           </div>
         </div>
       </main>

@@ -125,3 +125,54 @@ export async function updateManualTip(
     return { error: err instanceof Error ? err.message : "Kunde inte spara." };
   }
 }
+
+/** Adds a copy of someone else's shared tip (see src/app/dela/[id]/page.tsx)
+    into the current user's own library. Only the fields the share page
+    itself shows are copied over — not the original owner's recommender,
+    note or review, which stay private to their row. If the same title
+    (by type + source + external id) is already in the user's library,
+    hands back that existing row instead of creating a duplicate. */
+export async function addSharedTip(sourceId: string): Promise<{ id: string } | { error: string }> {
+  try {
+    const userId = await requireUserId();
+    const [source] = await db.select().from(tips).where(eq(tips.id, sourceId)).limit(1);
+    if (!source) return { error: "Tipset hittades inte." };
+
+    const [existing] = await db
+      .select({ id: tips.id })
+      .from(tips)
+      .where(
+        and(
+          eq(tips.userId, userId),
+          eq(tips.type, source.type),
+          eq(tips.externalSource, source.externalSource),
+          eq(tips.externalId, source.externalId)
+        )
+      )
+      .limit(1);
+    if (existing) return { id: existing.id };
+
+    const [row] = await db
+      .insert(tips)
+      .values({
+        userId,
+        type: source.type,
+        title: source.title,
+        year: source.year,
+        externalSource: source.externalSource,
+        externalId: source.externalId,
+        posterUrl: source.posterUrl,
+        description: source.description,
+        rating: source.rating,
+        genre: source.genre,
+        extra: source.extra,
+        recommender: null,
+        note: null,
+      })
+      .returning({ id: tips.id });
+    revalidatePath("/");
+    return { id: row.id };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Kunde inte lägga till tipset." };
+  }
+}

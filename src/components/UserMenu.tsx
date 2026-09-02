@@ -76,6 +76,14 @@ export function UserMenu({
           >
             Inställningar
           </Link>
+          <Link
+            href="/spara-som-app"
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            className="block px-3.5 py-2.75 text-[13px] font-semibold text-text hover:bg-bg-card"
+          >
+            Spara som app
+          </Link>
           <form action={logout}>
             <button
               type="submit"

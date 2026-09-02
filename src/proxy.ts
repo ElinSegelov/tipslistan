@@ -9,8 +9,13 @@ export default auth((req) => {
   const isLegalPage =
     req.nextUrl.pathname.startsWith("/integritetspolicy") ||
     req.nextUrl.pathname.startsWith("/anvandarvillkor");
+  // "/" måste också vara läsbar utloggad — den visar en publik
+  // landningssida istället för biblioteket när ingen är inloggad (se
+  // src/app/page.tsx), så att t.ex. Google faktiskt har en sida att
+  // länka till istället för att bara studsa besökare till /login.
+  const isPublicHome = req.nextUrl.pathname === "/";
 
-  if (!isLoggedIn && !isAuthPage && !isLegalPage) {
+  if (!isLoggedIn && !isAuthPage && !isLegalPage && !isPublicHome) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("from", req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
