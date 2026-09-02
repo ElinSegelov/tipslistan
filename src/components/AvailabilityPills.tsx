@@ -38,7 +38,16 @@ export function AvailabilityPills({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    // `max-w-full` + `overflow-hidden` as a targeted backstop right at the
+    // source, on top of the page-wide overflow-x guard in globals.css: an
+    // individual pill can't itself force this row (and so the page) wider
+    // than its column, even with an unusually long service name and lots
+    // of them (many streaming options on a narrow phone is what surfaced
+    // this). `max-w-full` rather than `100vw` on purpose — `vw` is
+    // relative to the viewport, not this element's own column, so on an
+    // indented container it can end up *wider* than the available space
+    // instead of capping it.
+    <div className="flex max-w-full flex-col gap-3 overflow-hidden">
       <div className="flex flex-wrap gap-2.5">
         {data.items.map((item, i) =>
           item.url ? (

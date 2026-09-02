@@ -34,11 +34,23 @@
   box-sizing: border-box;
 }
 
+/* Belt-and-braces against horizontal scroll: individual components try to
+   wrap/truncate correctly (see e.g. AvailabilityPills' flex-wrap row), but
+   with enough content — many streaming services on a narrow phone being
+   the case that prompted this — something can still end up a hair wider
+   than the viewport. Clipping it here means that never becomes a
+   page-wide horizontal scrollbar, instead of chasing every individual
+   overflow source. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* Layered so Tailwind utility classes (e.g. text-accent-ink on the
