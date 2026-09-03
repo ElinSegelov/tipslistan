@@ -34,11 +34,20 @@ function normalize(item: GoogleBookItem): SearchResult {
   };
 }
 
-export async function searchGoogleBooks(query: string): Promise<SearchResult[]> {
+export async function searchGoogleBooks(
+  query: string,
+  // `swedishOnly: false` is used when we already trust a LIBRIS record's
+  // metadata and just need *any* cover/description for it (getLibrisCover
+  // in providers/index.ts) — langRestrict=sv is too strict there since
+  // Google's language tag on the matching edition doesn't always line up
+  // with what's actually a Swedish edition, and can turn an otherwise
+  // perfectly good match into zero results.
+  { swedishOnly = true }: { swedishOnly?: boolean } = {}
+): Promise<SearchResult[]> {
   const url = new URL(API_BASE);
   url.searchParams.set("q", query);
-  url.searchParams.set("maxResults", "8");
-  url.searchParams.set("langRestrict", "sv");
+  url.searchParams.set("maxResults", "15");
+  if (swedishOnly) url.searchParams.set("langRestrict", "sv");
   if (process.env.GOOGLE_BOOKS_API_KEY) {
     url.searchParams.set("key", process.env.GOOGLE_BOOKS_API_KEY);
   }

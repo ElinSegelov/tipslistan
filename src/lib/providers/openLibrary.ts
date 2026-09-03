@@ -30,7 +30,7 @@ function normalize(doc: OpenLibraryDoc): SearchResult {
 export async function searchOpenLibrary(query: string): Promise<SearchResult[]> {
   const url = new URL("https://openlibrary.org/search.json");
   url.searchParams.set("q", query);
-  url.searchParams.set("limit", "8");
+  url.searchParams.set("limit", "15");
   url.searchParams.set(
     "fields",
     "key,title,author_name,first_publish_year,cover_i,number_of_pages_median,ratings_average"

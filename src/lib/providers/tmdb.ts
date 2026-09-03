@@ -42,7 +42,7 @@ export async function searchTmdb(query: string, type: ContentType): Promise<Sear
   const mediaType = mediaTypeFor(type);
   const data = await tmdbGet(`/search/${mediaType}`, { query, include_adult: "false" });
   const results: TmdbSearchItem[] = data.results ?? [];
-  return results.slice(0, 8).map((item) => normalizeSearchItem(item, mediaType, type));
+  return results.slice(0, 15).map((item) => normalizeSearchItem(item, mediaType, type));
 }
 
 function normalizeSearchItem(item: TmdbSearchItem, mediaType: TmdbMediaType, type: ContentType): SearchResult {

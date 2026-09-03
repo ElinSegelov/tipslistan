@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { LogoMark } from "@/components/icons";
 import { PosterPlaceholder, TypeBadge } from "@/components/TypeBadge";
 import { addSharedTip } from "@/lib/actions/tips";
-import { CATEGORIES, genreOrAuthorLabel } from "@/lib/categories";
+import { sourceLabel, CATEGORIES, genreOrAuthorLabel } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { tips } from "@/lib/db/schema";
 import type { TipRecord } from "@/lib/types";
@@ -69,7 +69,6 @@ export default async function SharedTipPage({
   const tip = await getTip(id);
   if (!tip) notFound();
 
-  const cat = CATEGORIES[tip.type];
   const session = await auth();
   const isLoggedIn = !!session?.user?.id;
 
@@ -97,7 +96,7 @@ export default async function SharedTipPage({
 
       <main className="flex-1 mx-auto max-w-3xl px-4 pb-16 pt-9 sm:px-10">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-[220px_1fr] sm:gap-9">
-          <div className="relative mx-auto aspect-[2/3] w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
+          <div className="relative mx-auto aspect-2/3 w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
             <PosterPlaceholder type={tip.type} />
             {tip.posterUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -108,7 +107,7 @@ export default async function SharedTipPage({
           <div className="flex flex-col justify-center">
             <div className="mb-2.5 flex items-center gap-2">
               <TypeBadge type={tip.type} />
-              <span className="text-xs text-text-faint">Källa: {tip.externalSource === "manual" ? "Manuellt" : cat.source}</span>
+              <span className="text-xs text-text-faint">Källa: {sourceLabel(tip.externalSource)}</span>
             </div>
             <h1 className="serif mb-3 text-[32px] italic leading-[1.05] sm:text-[46px]">{tip.title}</h1>
             <div className="mb-4.5 flex flex-wrap items-center gap-2 text-[13.5px] text-text-muted">

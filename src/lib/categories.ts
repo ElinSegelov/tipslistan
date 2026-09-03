@@ -11,7 +11,6 @@ export interface CategoryInfo {
   pendingLabel: string;
   /** Heading shown above the availability section on the detail page */
   availLabel: string;
-  source: string;
 }
 
 export const CATEGORIES: Record<ContentType, CategoryInfo> = {
@@ -23,7 +22,6 @@ export const CATEGORIES: Record<ContentType, CategoryInfo> = {
     doneLabel: "Sedd",
     pendingLabel: "Vill se",
     availLabel: "Var du kan streama",
-    source: "TMDB",
   },
   serie: {
     key: "serie",
@@ -33,7 +31,6 @@ export const CATEGORIES: Record<ContentType, CategoryInfo> = {
     doneLabel: "Sedd",
     pendingLabel: "Vill se",
     availLabel: "Var du kan streama",
-    source: "TMDB",
   },
   bok: {
     key: "bok",
@@ -43,33 +40,26 @@ export const CATEGORIES: Record<ContentType, CategoryInfo> = {
     doneLabel: "Läst",
     pendingLabel: "Vill läsa",
     availLabel: "Läs eller köp",
-    source: "Google Books",
   },
   spel: {
     key: "spel",
-    // Soft hyphen (U+00AD) — see the same comment on brädspel below; gives
-    // the placeholder text a sane break ("Video-spel") if it doesn't fit.
-    label: "Video\u00adspel",
+    // Soft hyphen (U+00AD) gives the placeholder text a reasonable break ("Video-spel") 
+    // if it doesn't fit.
+    label: "Video­spel",
     pluralLabel: "Videospel",
     hue: 300,
     doneLabel: "Spelad",
     pendingLabel: "Vill spela",
     availLabel: "Plattformar",
-    source: "RAWG",
   },
   brädspel: {
     key: "brädspel",
-    // Soft hyphen (U+00AD) between "Bräd" and "spel" — invisible in normal
-    // use (badges, filter chips), but gives the browser a sane place to
-    // break as "Bräd-spel" instead of an arbitrary mid-word break when the
-    // label doesn't fit (e.g. the large placeholder text on posters).
-    label: "Bräd\u00adspel",
+    label: "Bräd­spel",
     pluralLabel: "Brädspel",
     hue: 140,
     doneLabel: "Spelad",
     pendingLabel: "Vill spela",
     availLabel: "Spelinfo & köp",
-    source: "BoardGameGeek",
   },
 };
 
@@ -85,3 +75,19 @@ export function genreOrAuthorLabel(type: ContentType, genre: string | null): str
 
 /** Categories whose availability is country-dependent (real streaming presence data). */
 export const COUNTRY_AWARE_TYPES: ContentType[] = ["film", "serie"];
+
+/** Faktisk källa per tips (externalSource/source-fältet), inte kategorin —
+    en bok kan t.ex. komma från LIBRIS, Google Books eller Open Library. */
+const SOURCE_LABELS: Record<string, string> = {
+  tmdb: "TMDB",
+  libris: "LIBRIS",
+  google_books: "Google Books",
+  open_library: "Open Library",
+  rawg: "RAWG",
+  bgg: "BoardGameGeek",
+  manual: "Manuellt",
+};
+
+export function sourceLabel(source: string): string {
+  return SOURCE_LABELS[source] ?? source;
+}

@@ -122,7 +122,7 @@ function primaryName(names: BggName[]): string {
 export async function searchBgg(query: string): Promise<SearchResult[]> {
   const data = await bggFetch<BggSearchItem>("/search", { query, type: "boardgame" });
   const items = data.items?.item ?? [];
-  return items.slice(0, 8).map((item) => ({
+  return items.slice(0, 15).map((item) => ({
     id: String(item["@_id"]),
     source: "bgg",
     type: "brädspel" as const,

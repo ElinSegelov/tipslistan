@@ -39,7 +39,7 @@ function normalize(game: RawgGame): SearchResult {
 export async function searchRawg(query: string): Promise<SearchResult[]> {
   const url = new URL(`${API_BASE}/games`);
   url.searchParams.set("search", query);
-  url.searchParams.set("page_size", "8");
+  url.searchParams.set("page_size", "15");
   url.searchParams.set("key", apiKey());
   const res = await fetch(url, { next: { revalidate: 60 * 60 } });
   if (!res.ok) throw new Error(`RAWG-anrop misslyckades (${res.status})`);

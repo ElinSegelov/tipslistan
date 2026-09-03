@@ -9,13 +9,22 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type") as ContentType | null;
   const source = searchParams.get("source");
   const id = searchParams.get("id");
+  // Redan känd metadata från sökresultatet — se getDetails/getLibrisCover
+  // i providers/index.ts för varför LIBRIS-träffar behöver detta.
+  const title = searchParams.get("title") ?? undefined;
+  const yearParam = searchParams.get("year");
+  const genre = searchParams.get("genre") ?? undefined;
 
   if (!type || !VALID_TYPES.includes(type) || !source || !id) {
     return NextResponse.json({ error: "type, source och id krävs." }, { status: 400 });
   }
 
   try {
-    const result = await getDetails(type, source, id);
+    const result = await getDetails(type, source, id, {
+      title,
+      year: yearParam ? Number(yearParam) : undefined,
+      genre,
+    });
     return NextResponse.json({ result });
   } catch (err) {
     console.error(err);

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CATEGORIES, COUNTRY_AWARE_TYPES, genreOrAuthorLabel } from "@/lib/categories";
+import { sourceLabel, CATEGORIES, COUNTRY_AWARE_TYPES, genreOrAuthorLabel } from "@/lib/categories";
 import { normalizeRating } from "@/lib/rating";
 import type { AvailabilityResult, TipRecord } from "@/lib/types";
 import { useCountry } from "@/lib/useCountry";
@@ -193,7 +193,7 @@ export function DetailView({ tip }: { tip: TipRecord }) {
   return (
     <>
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-[220px_1fr] sm:gap-9">
-        <div className="relative mx-auto aspect-[2/3] w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
+        <div className="relative mx-auto aspect-2/3 w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
           <PosterPlaceholder type={tip.type} sizeClassName="text-[3rem] sm:text-[4rem]" />
           {tip.posterUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -204,7 +204,7 @@ export function DetailView({ tip }: { tip: TipRecord }) {
         <div className="flex flex-col justify-center">
           <div className="mb-2.5 flex flex-wrap items-center gap-2">
             <TypeBadge type={tip.type} />
-            <span className="text-xs text-text-faint">Källa: {isManual ? "Manuellt" : cat.source}</span>
+            <span className="text-xs text-text-faint">Källa: {sourceLabel(tip.externalSource)}</span>
             {isManual && !editingDetails ? (
               <button
                 type="button"
@@ -369,7 +369,7 @@ export function DetailView({ tip }: { tip: TipRecord }) {
 
               {details.note ? (
                 <div className="mb-5 border-l-2 py-1 pl-4" style={{ borderColor: `oklch(0.72 0.13 ${cat.hue})` }}>
-                  <span className="serif italic text-base text-text/90">&ldquo;{details.note}&rdquo;</span>
+                  <span className="serif italic text-base text-text/90 tracking-[0.6px]">&ldquo;{details.note}&rdquo;</span>
                 </div>
               ) : null}
             </>

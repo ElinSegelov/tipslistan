@@ -14,6 +14,10 @@ const RATING_SCALE: Record<string, number> = {
   rawg: 5,
   google_books: 5,
   open_library: 5,
+  // Ett libris-tips betyg kommer alltid från Google Books/Open Library-
+  // slagningen i getLibrisCover (LIBRIS självt har inga betyg) — samma
+  // 0-5-skala som de.
+  libris: 5,
   bgg: 10,
   manual: 10,
 };

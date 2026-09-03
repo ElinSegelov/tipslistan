@@ -3,11 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PosterPlaceholder, TypeBadge } from "@/components/TypeBadge";
-import { CATEGORY_LIST, CATEGORIES, genreOrAuthorLabel, type ContentType } from "@/lib/categories";
+import { CATEGORY_LIST, CATEGORIES, COUNTRY_AWARE_TYPES, genreOrAuthorLabel, sourceLabel, type ContentType } from "@/lib/categories";
 import { normalizeRating } from "@/lib/rating";
-import type { SearchResult } from "@/lib/types";
+import type { AvailabilityResult, SearchResult } from "@/lib/types";
+import { useCountry } from "@/lib/useCountry";
 import { addTip } from "@/lib/actions/tips";
 import { CheckIcon } from "@/components/icons";
+import { CountrySelector } from "@/components/CountrySelector";
+import { AvailabilityPills } from "@/components/AvailabilityPills";
 
 
 export function SearchPageClient() {
@@ -19,8 +22,53 @@ export function SearchPageClient() {
   const [searchError, setSearchError] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<SearchResult | null>(null);
+  // Sant medan /api/details hämtar omslag/beskrivning för `selected` — bl.a.
+  // LIBRIS-träffar har inget omslag förrän det här är klart (se
+  // getLibrisCover i providers/index.ts), vilket kan ta ett par sekunder.
+  // Spärrar "Lägg till i biblioteket" tills dess, så ett tips aldrig sparas
+  // permanent utan omslag bara för att man hann klicka innan det laddat —
+  // det finns ingen bakgrundsjobb som fyller på det i efterhand.
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const selectSeqRef = useRef(0);
   const [recommender, setRecommender] = useState("");
   const [note, setNote] = useState("");
+
+  // Visa var titeln går att streama/köpa/spela redan i förhandsgranskningen
+  // — innan man lagt till den — inte bara efteråt på detaljsidan. Samma
+  // mönster (requestKey/effect/komponenter) som DetailView.tsx använder.
+  const [country, setCountry] = useCountry();
+  const countryAware = selected ? COUNTRY_AWARE_TYPES.includes(selected.type) : false;
+  const availabilityKey = selected ? `${selected.type}|${selected.source}|${selected.id}|${country}` : "";
+  const [availabilityState, setAvailabilityState] = useState<{ key: string; data: AvailabilityResult | null }>({
+    key: "",
+    data: null,
+  });
+  const availabilityLoading = Boolean(selected) && availabilityState.key !== availabilityKey;
+  const availability = availabilityState.key === availabilityKey ? availabilityState.data : null;
+
+  useEffect(() => {
+    if (!selected) return;
+    let cancelled = false;
+    const params = new URLSearchParams({
+      type: selected.type,
+      source: selected.source,
+      id: selected.id,
+      title: selected.title,
+      country,
+    });
+    fetch(`/api/availability?${params}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setAvailabilityState({ key: availabilityKey, data: data.error ? null : data });
+      })
+      .catch(() => {
+        if (!cancelled) setAvailabilityState({ key: availabilityKey, data: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availabilityKey]);
   const [added, setAdded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -70,10 +118,20 @@ export function SearchPageClient() {
   // of thing, so we search one type at a time).
   const hasQuery = query.trim().length > 0;
 
+  // Guards against out-of-order responses: the debounce timer's own cleanup
+  // only stops a request that hasn't *fired* yet, but two fired requests can
+  // still resolve in the wrong order (a slower search for an earlier,
+  // shorter query landing after a faster one for the up-to-date query) —
+  // now more likely to actually happen since LIBRIS calls take noticeably
+  // longer than the old single-provider Google Books search did. Only the
+  // response from the most recently *started* request is ever applied.
+  const searchSeqRef = useRef(0);
+
   useEffect(() => {
     if (!hasQuery) return;
     const typesToSearch = [typeFilter];
     const handle = setTimeout(async () => {
+      const seq = ++searchSeqRef.current;
       setLoading(true);
       setSearchError(null);
       try {
@@ -85,27 +143,43 @@ export function SearchPageClient() {
             return data.results as SearchResult[];
           })
         );
+        if (seq !== searchSeqRef.current) return; // en nyare sökning har redan startat
         setResults(all.flat());
       } catch (err) {
+        if (seq !== searchSeqRef.current) return;
         setSearchError(err instanceof Error ? err.message : "Sökningen misslyckades.");
         setResults([]);
       } finally {
-        setLoading(false);
+        if (seq === searchSeqRef.current) setLoading(false);
       }
     }, 400);
     return () => clearTimeout(handle);
   }, [query, hasQuery, typeFilter]);
 
   async function selectResult(result: SearchResult) {
+    const seq = ++selectSeqRef.current;
     setAdded(false);
     setSaveError(null);
     setManualOpen(false);
     setSelected(result);
+    setDetailsLoading(true);
     // Fill in richer detail (esp. BGG, which doesn't return images/description
     // from /search) before showing the preview.
     try {
-      const res = await fetch(`/api/details?type=${result.type}&source=${result.source}&id=${result.id}`);
+      const detailParams = new URLSearchParams({
+        type: result.type,
+        source: result.source,
+        id: result.id,
+      });
+      // Skickar med redan känd titel/år/författare — LIBRIS-träffar behöver
+      // detta för att slå upp omslag hos Google Books/Open Library separat
+      // (se getLibrisCover i providers/index.ts).
+      if (result.title) detailParams.set("title", result.title);
+      if (result.year != null) detailParams.set("year", String(result.year));
+      if (result.genre) detailParams.set("genre", result.genre);
+      const res = await fetch(`/api/details?${detailParams.toString()}`);
       const data = await res.json();
+      if (seq !== selectSeqRef.current) return; // en nyare träff har redan valts
       if (res.ok) {
         // Some providers' detail endpoints can't refetch everything the
         // search endpoint already had (e.g. Open Library's per-work lookup
@@ -124,6 +198,8 @@ export function SearchPageClient() {
       }
     } catch {
       // Keep the lighter search-result data if the detail fetch fails.
+    } finally {
+      if (seq === selectSeqRef.current) setDetailsLoading(false);
     }
   }
 
@@ -156,6 +232,7 @@ export function SearchPageClient() {
 
   function reset() {
     setSelected(null);
+    setDetailsLoading(false);
     setQuery("");
     setResults([]);
     setRecommender("");
@@ -172,6 +249,7 @@ export function SearchPageClient() {
     setQuery(value);
     if (selected) {
       setSelected(null);
+      setDetailsLoading(false);
       setRecommender("");
       setNote("");
       setAdded(false);
@@ -188,6 +266,7 @@ export function SearchPageClient() {
   // explicitly for a blank form (e.g. "add another").
   function openManual(prefillTitle?: string) {
     setSelected(null);
+    setDetailsLoading(false);
     setManualType(typeFilter);
     setManualTitle(prefillTitle ?? query.trim());
     setManualYear("");
@@ -273,12 +352,6 @@ export function SearchPageClient() {
         })}
       </div>
 
-      {typeFilter === "brädspel" && !manualOpen ? (
-        <div className="mb-5 rounded-xl border border-border bg-bg-card px-4 py-3 text-center text-[12.5px] text-text-muted">
-          Sök för brädspel är på gång — lägg till manuellt så länge.
-        </div>
-      ) : null}
-
       <div className="relative mb-5">
         <svg
           width="18"
@@ -331,18 +404,29 @@ export function SearchPageClient() {
 
       {!selected && !manualOpen && hasQuery && results.length > 0 ? (
         <div className="mb-9 flex flex-col gap-2">
-          {results.map((r) => (
-            <button
-              key={`${r.source}-${r.id}`}
-              type="button"
-              onClick={() => selectResult(r)}
-              className="flex items-center gap-3 rounded-xl border border-border bg-bg-card px-4 py-3 text-left"
-            >
-              <TypeBadge type={r.type} />
-              <span className="flex-1 truncate text-sm font-semibold">{r.title}</span>
-              {r.year ? <span className="text-xs text-text-faint">{r.year}</span> : null}
-            </button>
-          ))}
+          {results.map((r) => {
+            // Visar författare (böcker) / genre (övrigt) under titeln så att
+            // en sökning på en författares namn — som ger flera av deras
+            // titlar som träffar — går att skilja åt, och så att en
+            // titelsökning också visar vem som skrivit den.
+            const subtitle = [genreOrAuthorLabel(r.type, r.genre), r.year].filter(Boolean).join(" · ");
+            return (
+              <button
+                key={`${r.source}-${r.id}`}
+                type="button"
+                onClick={() => selectResult(r)}
+                className="flex items-center gap-3 rounded-xl border border-border bg-bg-card px-4 py-3 text-left"
+              >
+                <TypeBadge type={r.type} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{r.title}</span>
+                  {subtitle ? (
+                    <span className="block truncate text-xs text-text-faint">{subtitle}</span>
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
         </div>
       ) : null}
 
@@ -490,11 +574,16 @@ export function SearchPageClient() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={selected.posterUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
               ) : null}
+              {detailsLoading ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-bg/60">
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-text-faint/40 border-t-text" />
+                </div>
+              ) : null}
             </div>
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex flex-wrap items-center gap-2">
                 <TypeBadge type={selected.type} />
-                <span className="text-xs text-text-faint">Källa: {CATEGORIES[selected.type].source}</span>
+                <span className="text-xs text-text-faint">Källa: {sourceLabel(selected.source)}</span>
               </div>
               <div className="mb-1 text-[19px] font-bold">{selected.title}</div>
               <div className="mb-2.5 text-[12.5px] text-text-muted">
@@ -510,6 +599,21 @@ export function SearchPageClient() {
                 <p className="line-clamp-4 text-[13px] leading-relaxed text-text-muted">{selected.description}</p>
               ) : null}
             </div>
+          </div>
+
+          <div className="border-t border-border p-5.5">
+            <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
+              <div className="text-[13px] font-bold uppercase tracking-wide text-text-muted">
+                {CATEGORIES[selected.type].availLabel}
+              </div>
+              {countryAware ? <CountrySelector value={country} onChange={setCountry} /> : null}
+            </div>
+            <AvailabilityPills
+              data={availability}
+              loading={availabilityLoading}
+              hue={CATEGORIES[selected.type].hue}
+              country={country}
+            />
           </div>
 
           <div className="flex flex-col gap-3.5 border-t border-border p-5.5">
@@ -539,10 +643,10 @@ export function SearchPageClient() {
               <button
                 type="button"
                 onClick={addToLibrary}
-                disabled={saving}
+                disabled={saving || detailsLoading}
                 className="mt-1 rounded-xl bg-accent py-3.25 text-[14.5px] font-bold text-accent-ink disabled:opacity-50"
               >
-                {saving ? "Lägger till …" : "Lägg till i biblioteket"}
+                {saving ? "Lägger till …" : detailsLoading ? "Hämtar omslag & info …" : "Lägg till i biblioteket"}
               </button>
             ) : (
               <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/30 py-3.25 text-center text-[14.5px] font-bold text-emerald-300">

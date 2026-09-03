@@ -35,7 +35,11 @@ för dig.
    - [TMDB](https://www.themoviedb.org/settings/api) — för film & serie (sök, detaljer,
      streamingtillgänglighet per land).
    - [RAWG](https://rawg.io/apidocs) — för spel (sök, detaljer, plattformar).
-   - Google Books kräver ingen nyckel för att komma igång, men den delade nyckellösa kvoten blir
+   - Bok-sök använder [LIBRIS](https://www.kb.se/om-oss/oppna-apier.html) (Kungliga bibliotekets
+     katalog) i första hand för metadata — bäst svensk titel/utgåva/förlag — helt gratis och
+     keyless, ingen nyckel behövs. LIBRIS saknar dock omslagsbilder, så de hämtas separat från
+     Google Books (fallback Open Library) på titel + författare när en LIBRIS-träff väljs.
+     Google Books kräver ingen nyckel för att komma igång, men den delade nyckellösa kvoten blir
      lätt rate-limitad (fel 429) — lägg gärna till en egen nyckel via
      [console.cloud.google.com](https://console.cloud.google.com) om du märker det. Söket faller
      annars tillbaka på Open Library automatiskt om Google Books-anropet misslyckas.
@@ -74,7 +78,7 @@ för dig.
 | Typ | Källa | Anteckning |
 |---|---|---|
 | Film / Serie | [TMDB](https://www.themoviedb.org/) | Sök, detaljer och streamingleverantörer (byggt på JustWatch-data) — filtreras på valt land i detaljvyn. Om titeln inte finns tillgänglig i det valda landet visas en tydlig markering istället för att sektionen bara är tom. |
-| Bok | [Google Books](https://developers.google.com/books) med fallback till [Open Library](https://openlibrary.org) | Det finns ingen gratis, tillförlitlig "finns i lager"-api för svenska bokhandlar, så "Läs eller köp" länkar istället vidare till en sökning hos Bokus, Adlibris, Storytel och Libris. |
+| Bok | [LIBRIS](https://www.kb.se/om-oss/oppna-apier.html) (Kungliga biblioteket) för metadata, i första hand — med fallback till [Google Books](https://developers.google.com/books) och sedan [Open Library](https://openlibrary.org) | LIBRIS ger bäst svensk titel/utgåva/förlag men har inga omslagsbilder — de hämtas separat från Google Books/Open Library på titel+författare när en LIBRIS-träff väljs (`getLibrisCover` i `src/lib/providers/index.ts`). Det finns ingen gratis, tillförlitlig "finns i lager"-api för svenska bokhandlar, så "Läs eller köp" länkar istället vidare till en sökning hos Bokus, Adlibris, Storytel och Libris. |
 | Spel | [RAWG](https://rawg.io/apidocs) | Sök, detaljer och vilka plattformar spelet finns till. |
 | Brädspel | [BoardGameGeeks XML API2](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | BGG har **ingen** officiell JSON-api trots att det efterfrågats länge — bara den här XML-apin. Vi anropar den direkt från en egen serverrutt (`src/lib/providers/bgg.ts`) och parsar XML till JSON själva med `fast-xml-parser`, istället för att förlita oss på en tredjeparts hostade proxy. Ger antal spelare, speltid, komplexitet, kategori och länk till BGG-sidan, plus sök-länkar till ett par svenska brädspelsbutiker. BGG krävde tidigare ingen autentisering alls, men började 2025/2026 kräva ett registrerat API-token (`BGG_API_TOKEN`) — se steg 5 nedan. |
 
@@ -115,7 +119,7 @@ src/
   proxy.ts                  Skyddar alla sidor utom /login, /api/auth och juridiksidorna
   lib/
     categories.ts           Kategorimetadata (färger, etiketter, källa) — inkl. brädspel
-    providers/               TMDB, Google Books, Open Library, RAWG, BGG
+    providers/               TMDB, LIBRIS, Google Books, Open Library, RAWG, BGG
     db/schema.ts             Drizzle-schema (users/accounts/sessions/verificationTokens + tips)
     db/index.ts               Drizzle-klient mot Neon
     actions/tips.ts           Server actions för att lägga till/uppdatera tips (scopade till inloggad användare)
