@@ -415,9 +415,11 @@ export function SearchPageClient() {
                 key={`${r.source}-${r.id}`}
                 type="button"
                 onClick={() => selectResult(r)}
-                className="flex items-center gap-3 rounded-xl border border-border bg-bg-card px-4 py-3 text-left"
+                className="flex w-full min-w-0 items-center gap-3 rounded-xl border border-border bg-bg-card px-4 py-3 text-left"
               >
-                <TypeBadge type={r.type} />
+                <span className="shrink-0">
+                  <TypeBadge type={r.type} />
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">{r.title}</span>
                   {subtitle ? (
