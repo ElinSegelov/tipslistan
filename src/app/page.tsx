@@ -51,7 +51,7 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <main className="flex-1 mx-auto max-w-7xl px-4 pb-16 pt-6 md:px-10 md:pt-6">
+      <main className="flex-1 min-w-0 w-full mx-auto max-w-7xl px-4 pb-16 pt-6 md:px-10 md:pt-6">
         <div className="mb-8">
           <h1 className="serif text-[44px] italic leading-[1.05]">Dina tips</h1>
           <p className="mt-2 max-w-140 text-[15px] text-text-muted">

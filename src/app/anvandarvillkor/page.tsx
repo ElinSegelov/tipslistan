@@ -9,7 +9,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <>
-      <main className="flex-1 mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
+      <main className="flex-1 min-w-0 w-full mx-auto max-w-160 px-4 pb-16 pt-14 sm:px-10">
         <Link href="/" className="mb-10 flex items-center gap-3">
           <LogoMark />
           <span className="serif italic text-[22px] tracking-wide">Tipslistan</span>

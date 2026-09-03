@@ -12,7 +12,7 @@ export default async function SaveAsAppPage() {
   return (
     <>
       <Header variant="minimal" back />
-      <main className="flex-1 mx-auto max-w-2xl px-4 pb-16 pt-9 sm:px-10">
+      <main className="flex-1 min-w-0 w-full mx-auto max-w-2xl px-4 pb-16 pt-9 sm:px-10">
         <h1 className="serif mb-3 text-[36px] italic leading-[1.05]">Spara som app</h1>
         <p className="mb-8 max-w-140 text-sm leading-relaxed text-text-muted">
           Lägg till Tipslistan på hemskärmen så öppnas den som en egen app — utan adressfält eller

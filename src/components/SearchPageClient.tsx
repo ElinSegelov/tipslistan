@@ -370,6 +370,10 @@ export function SearchPageClient() {
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           placeholder="Sök på titel …"
+          spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="off"
+          autoComplete="off"
           className="w-full rounded-full border border-border bg-bg-elevated py-4 pl-12.5 pr-4.5 text-[15px] outline-none placeholder:text-text-faint"
         />
       </div>

@@ -94,7 +94,7 @@ export default async function SharedTipPage({
         </div>
       </header>
 
-      <main className="flex-1 mx-auto max-w-3xl px-4 pb-16 pt-9 sm:px-10">
+      <main className="flex-1 min-w-0 w-full mx-auto max-w-3xl px-4 pb-16 pt-9 sm:px-10">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-[220px_1fr] sm:gap-9">
           <div className="relative mx-auto aspect-2/3 w-36 flex-none overflow-hidden rounded-2xl border border-border sm:mx-0 sm:w-auto">
             <PosterPlaceholder type={tip.type} />
