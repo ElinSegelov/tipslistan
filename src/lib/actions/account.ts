@@ -21,11 +21,13 @@ export async function logout() {
 /** Deletes the signed-in user's account and everything tied to it. The
     `user` row cascades to `account`, `session` and `tips` (see the
     onDelete: "cascade" references in src/lib/db/schema.ts), so this one
-    delete is enough — no need to clean up related tables by hand. Signs
-    the user out afterwards, which redirects; a caller that awaits this
-    without an error only needs to handle the `{ error }` case, since a
-    successful call never returns. */
-export async function deleteAccount(): Promise<{ error: string } | void> {
+    delete is enough — no need to clean up related tables by hand.
+
+    Deliberately does NOT sign the user out — the caller (DeleteAccountSection)
+    shows a brief confirmation first and then calls `finalizeAccountDeletion`
+    itself, so the user sees that the deletion actually happened before
+    getting redirected away. */
+export async function deleteAccount(): Promise<{ error: string } | { success: true }> {
   let userId: string;
   try {
     userId = await requireUserId();
@@ -39,5 +41,13 @@ export async function deleteAccount(): Promise<{ error: string } | void> {
     return { error: err instanceof Error ? err.message : "Kunde inte radera kontot." };
   }
 
+  return { success: true };
+}
+
+/** Signs the user out after their account has been deleted (see
+    `deleteAccount` above). Split out into its own action so the client can
+    show a short "kontot är raderat"-confirmation before this runs — this is
+    the call that actually redirects. */
+export async function finalizeAccountDeletion() {
   await signOut({ redirectTo: "/login?raderat=1" });
 }
